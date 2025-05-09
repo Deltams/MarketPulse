@@ -4,8 +4,9 @@ from django.shortcuts import render, get_object_or_404
 
 from rest_framework import generics
 
-from .models import Brand, Category, Product
-from .serializers import CategorySerializer, ProductSerializer
+from .models import Brand, Category, Product, UserProfile
+from .serializers import CategorySerializer, ProductSerializer, BrandSerializer, UserProfileSerializer
+
 
 def index(request):
     data = {'title': 'Главная страница'}
@@ -52,3 +53,13 @@ class CategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 class ProductAPIView(generics.ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+
+
+class BrandAPIView(generics.ListAPIView):
+    queryset = Brand.objects.all()
+    serializer_class = BrandSerializer
+
+
+class UserProfileAPIView(generics.ListAPIView):
+    queryset = UserProfile.objects.all()
+    serializer_class = UserProfileSerializer
