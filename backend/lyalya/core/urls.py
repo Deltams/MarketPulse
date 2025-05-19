@@ -10,11 +10,22 @@ urlpatterns = [
     path('category/<int:cat_id>/', views.category),
     path('category/<slug:cat_slug>/', views.category_by_slug),
 
+    path('brands/', views.brand_list_view),
+    path('brands/<int:pk>/', views.brand_detail_view),
+    path('categories/', views.category_list_view),
+    path('categories/<int:pk>/', views.category_detail_view),
+    path('products/', views.product_list_view),
+    path('products/<int:product_id>/', views.product_detail_view),
+
     path('api/v1/categorylist/', views.CategoryAPIView.as_view()),
     path('api/v1/categories/', views.CategoryListCreateView.as_view()),
     path('api/v1/categories/<int:pk>/', views.CategoryRetrieveUpdateDestroyView.as_view()),
     
     path('api/v1/productlist/', views.ProductAPIView.as_view()),
+    path('api/v1/productlist/<int:pk>/', views.ProductDetailAPIView.as_view()),
+
     path('api/v1/brandlist/', views.BrandAPIView.as_view()),
+    path('api/v1/brandlist/<int:pk>/', views.BrandDetailAPIView.as_view()),
+
     path('api/v1/userprofilelist/', views.UserProfileAPIView.as_view()),
 ]

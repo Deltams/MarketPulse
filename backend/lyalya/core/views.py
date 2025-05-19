@@ -35,6 +35,36 @@ def category_by_slug(request, cat_slug):
     return render(request, 'core/category.html', data)
 
 
+def brand_list_view(request):
+    brands = Brand.objects.all()
+    return render(request, 'core/brand-list.html', {'brands': brands})
+
+
+def brand_detail_view(request, pk):
+    brand = get_object_or_404(Brand, pk=pk)
+    return render(request, 'core/brand-detail.html', {'brand': brand})
+
+
+def category_list_view(request):
+    categories = Category.objects.all()
+    return render(request, 'core/category-list.html', {'categories': categories})
+
+
+def category_detail_view(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+    return render(request, 'core/category-detail.html', {'category': category})
+
+
+def product_list_view(request):
+    products = Product.objects.all()
+    return render(request, 'core/product-list.html', {'products': products})
+
+
+def product_detail_view(request, product_id):
+    product = get_object_or_404(Product, pk=product_id)
+    return render(request, 'core/product-detail.html', {'product': product})
+
+
 class CategoryAPIView(generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -55,7 +85,17 @@ class ProductAPIView(generics.ListAPIView):
     serializer_class = ProductSerializer
 
 
+class ProductDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+
 class BrandAPIView(generics.ListAPIView):
+    queryset = Brand.objects.all()
+    serializer_class = BrandSerializer
+
+
+class BrandDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Brand.objects.all()
     serializer_class = BrandSerializer
 

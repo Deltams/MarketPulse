@@ -36,7 +36,8 @@ class Category(models.Model):
 
 
 class Product(models.Model):
-    brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
+    brand = models.ForeignKey(
+        Brand, on_delete=models.CASCADE, null=True, blank=True)
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL, null=True, blank=True)
     name = models.CharField(max_length=255)
