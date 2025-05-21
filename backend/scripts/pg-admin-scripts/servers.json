@@ -1,0 +1,15 @@
+{
+  "Servers": {
+      "1": {
+          "Name": "My PostgreSQL Server - 2025",
+          "Group": "Servers",
+          "Host": "my-postgres-2025",
+          "Port": 5432,
+          "MaintenanceDB": "postgres",
+          "Username": "postgres",
+          "Password": "qwer4617",
+          "Database": "postgres",
+          "SSLMode": "prefer"
+      }
+  }
+}
