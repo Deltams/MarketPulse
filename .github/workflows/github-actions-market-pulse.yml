@@ -1,0 +1,30 @@
+name: Checking and publishing the project
+on:
+  push:
+    branches: [main]
+jobs:
+  test:
+    runs-on: self-hosted # ubuntu-latest, если на серверах GitHub; self-hosted, если свой сервер
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x' # Установка актуальной версии Python
+      - name: Install dependencies
+        run: pip install -r ./backend/lyalya/requirements.txt
+      - name: Run Tests
+        run: python manage.py test core.tests
+      # Прописать установку зависимостей frontend
+      # Запуск тестов frontend (возможно сборка)
+  deploy:
+    needs: [test]
+    runs-on: self-hosted
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Stop and delete the previous version
+        run: sudo docker compose down -v # удаляем предыдущий запущенный контейнер; флаг -v означает, что  удаляем данные, которые находились в томах
+      - name: Deploy repository
+        run: sudo docker compose up --build -d # флаг -d означает, что запускаем сборку в фоновом режиме
