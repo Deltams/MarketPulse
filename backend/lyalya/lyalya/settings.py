@@ -77,7 +77,7 @@ WSGI_APPLICATION = 'lyalya.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    # Для тестов и локального запуска 
+    # # Для тестов и локального запуска 
     # 'default': {
     #     'ENGINE': 'django.db.backends.sqlite3',
     #     'NAME': BASE_DIR / 'db.sqlite3',
