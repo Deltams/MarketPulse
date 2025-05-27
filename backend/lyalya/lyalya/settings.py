@@ -77,9 +77,18 @@ WSGI_APPLICATION = 'lyalya.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
+    # Для тестов и локального запуска 
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'data_base_market_pulse',
+        'USER': 'postgres',
+        'PASSWORD': 'qwer4617',
+        'HOST': 'my-postgres-2025',
+        'PORT': '5432',
     }
 }
 
