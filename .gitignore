@@ -1,4 +1,7 @@
+# python
 __pycache__/
+backend/lyalya/core/migrations/*
+!backend/lyalya/core/migrations/__init__.py
 
 node_modules
 
