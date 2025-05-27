@@ -15,7 +15,7 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get install -y gcc libpq-dev && pip install -r ./backend/lyalya/requirements.txt
       - name: Run Tests
-        run: python manage.py test core.tests
+        run: python ./backend/lyalya/manage.py test core.tests
       # Прописать установку зависимостей frontend
       # Запуск тестов frontend (возможно сборка)
   deploy:
