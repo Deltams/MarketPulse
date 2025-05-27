@@ -13,7 +13,7 @@ jobs:
         with:
           python-version: '3.x' # Установка актуальной версии Python
       - name: Install dependencies
-        run: sudo apt-get install libpq-dev && pip install -r ./backend/lyalya/requirements.txt
+        run: sudo apt-get install -y libpq-dev && pip install -r ./backend/lyalya/requirements.txt
       - name: Run Tests
         run: python manage.py test core.tests
       # Прописать установку зависимостей frontend
