@@ -77,6 +77,11 @@ WSGI_APPLICATION = 'lyalya.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
+    # # Для тестов и локального запуска 
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
     'default': { 
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'data_base_market_pulse',
@@ -91,12 +96,6 @@ DATABASES = {
     },
 }
 
-for db_name in DATABASES:
-    DATABASES[db_name]['TEST'] = {
-        'DEPENDENCIES': [],
-    }
-
-# TEST_RUNNER = 'core.tests.runners.KeepDBTestRunner'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
