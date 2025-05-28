@@ -48,6 +48,6 @@ DATABASES = {
 
 Шаги по миграции:
 1. Если остались прошлые файлы - удалить их, кроме `__init__.py`
-2. Выполнить команду `python manage.py makemigrations`
-3. Выполнить команду `python manage.py migrate`, можно добавить флаг `--database=testdb` для определенной БД
-4. Запустить тесты `python manage.py test core.tests.models`, если все тесты пройдены успешно - миграция выполнена
+2. Выполнить команду `python manage.py makemigrations`, можно добавить флаг `--settings=lyalya.settings_test` для тестовой БД
+3. Выполнить команду `python manage.py migrate`, можно добавить флаг `--settings=lyalya.settings_test` для тестовой БД
+4. Запустить тесты `python manage.py test core.tests.models`, можно добавить флаг `--settings=lyalya.settings_test` для тестовой БД, если все тесты пройдены успешно - миграция выполнена успешно
