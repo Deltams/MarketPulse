@@ -15,7 +15,7 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y gcc libpq-dev sqlite3 && pip install -r ./backend/lyalya/requirements.txt
       - name: Migrate testDB
-        run: python ./backend/lyalya/manage.py makemigrations && python ./backend/lyalya/manage.py migrate --database=testdb 
+        run: python ./backend/lyalya/manage.py makemigrations --settings=lyalya.settings_test && python ./backend/lyalya/manage.py migrate --settings=lyalya.settings_test 
       - name: Run Tests Models
         run: python ./backend/lyalya/manage.py test core.tests.models
       # Прописать установку зависимостей frontend
