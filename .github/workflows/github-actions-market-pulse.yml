@@ -17,7 +17,7 @@ jobs:
       - name: Migrate testDB
         run: python ./backend/lyalya/manage.py makemigrations --settings=lyalya.settings_test && python ./backend/lyalya/manage.py migrate --settings=lyalya.settings_test 
       - name: Run Tests Models
-        run: python ./backend/lyalya/manage.py test core.tests.models
+        run: python ./backend/lyalya/manage.py test core.tests.models --settings=lyalya.settings_test
       # Прописать установку зависимостей frontend
       # Запуск тестов frontend (возможно сборка)
   deploy:
