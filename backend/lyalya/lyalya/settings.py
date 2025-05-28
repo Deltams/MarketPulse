@@ -96,6 +96,11 @@ DATABASES = {
     },
 }
 
+for db_name in DATABASES:
+    DATABASES[db_name]['TEST'] = {
+        'DEPENDENCIES': [],
+    }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
