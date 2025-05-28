@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
+from django.core.exceptions import ValidationError
 
 
 class UserProfile(models.Model):
@@ -38,15 +39,32 @@ class Category(models.Model):
 
 class Product(models.Model):
     brand = models.ForeignKey(
-        Brand, on_delete=models.CASCADE, null=True, blank=True)
+        Brand,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
     category = models.ForeignKey(
-        Category, on_delete=models.SET_NULL, null=True, blank=True)
+        Category,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True)
     description = models.TextField(blank=True, null=True)
 
-    price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)]) # физически в БД все еще можно записать отрицательную цену!!!
     is_active = models.BooleanField(default=True)
+
+    def check_price(self):
+        if self.price < 0:
+            raise ValidationError("Цена не может быть отрицательной.")
+
+    def save(self, *args, **kwargs):
+        """Переопределяем метод save(), чтобы включить доп. проверку(и)"""
+        self.check_price()
+        return super().save(*args, **kwargs)
 
 
 class Cart(models.Model):

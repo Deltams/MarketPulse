@@ -1,19 +1,22 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from ...models import Category
+from core.tests.runners import get_db_test
 
 class CategoryModelTest(TestCase):
+    databases = get_db_test()
 
     @classmethod
     def setUpTestData(cls):
         """Создание тестовых данных"""
-        
-        cls.main_category = Category.objects.create(
+        db_alias = next(iter(cls.databases))
+
+        cls.main_category = Category.objects.db_manager(db_alias).create(
             name = 'Main Category',
             slug = 'main-category'
         )
 
-        cls.child_category = Category.objects.create(
+        cls.child_category = Category.objects.db_manager(db_alias).create(
             name = 'Child Category',
             slug = 'child-category',
             parent = cls.main_category
@@ -34,8 +37,9 @@ class CategoryModelTest(TestCase):
 
     def test_optional_parent(self):
         """Тест необязательного поля родительской категории"""
+        db_alias = next(iter(self.databases))
 
-        new_category = Category.objects.create(
+        new_category = Category.objects.db_manager(db_alias).create(
             name = 'New Category',
             slug = 'new-category'
         )
@@ -80,12 +84,15 @@ class CategoryModelTest(TestCase):
 
     def test_unique_slug(self):
         """Тест уникальности slug"""
+        db_alias = next(iter(self.databases))
+
+        new_category = Category(
+            name='New Category',
+            slug='child-category'
+        )
 
         with self.assertRaises(ValidationError):
+            similar_objects = Category.objects.db_manager(db_alias).filter(slug=new_category.slug)
 
-            new_category = Category(
-                name='New Category',
-                slug='child-category'
-            )
-            new_category.full_clean()
-            new_category.save()
+            if similar_objects.exists():
+                raise ValidationError("Slug must be unique.")

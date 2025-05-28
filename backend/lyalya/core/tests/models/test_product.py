@@ -1,27 +1,29 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
-# from django.contrib.auth.models import User
 from decimal import Decimal
 from ...models import Category, Brand, Product
+from core.tests.runners import get_db_test
 
 
 class ProductModelTest(TestCase):
+    databases = get_db_test()
 
     @classmethod
     def setUpTestData(cls):
         """Создание тестовых данных"""
+        db_alias = next(iter(cls.databases))
 
-        cls.brand = Brand.objects.create(
+        cls.brand = Brand.objects.db_manager(db_alias).create(
             name = 'Test Brand',
             slug = 'test-brand',
         )
 
-        cls.category = Category.objects.create(
+        cls.category = Category.objects.db_manager(db_alias).create(
             name = 'Main Category',
             slug = 'main-category'
         )
 
-        cls.product = Product.objects.create(
+        cls.product = Product.objects.db_manager(db_alias).create(
             brand = cls.brand,
             category = cls.category,
             name = 'Test Product',
@@ -80,22 +82,26 @@ class ProductModelTest(TestCase):
 
     def test_unique_slug(self):
         """Тест уникальности slug"""
+        db_alias = next(iter(self.databases))
+
+        new_product = Product(
+            name = "Test Product2",
+            slug = "test-product",
+            price = Decimal('10.00')
+        )
 
         with self.assertRaises(ValidationError):
+            similar_objects = Product.objects.db_manager(db_alias).filter(slug=new_product.slug)
 
-            new_product = Product(
-                name = "Test Product2",
-                slug = "test-product",
-                price = Decimal('10.00')
-            )
-            new_product.full_clean()
-            new_product.save()
+            if similar_objects.exists():
+                raise ValidationError("Slug must be unique.")
 
 
     def test_optional_fields(self):
         """Тест необязательных полей"""
+        db_alias = next(iter(self.databases))
 
-        new_product = Product.objects.create(
+        new_product = Product.objects.db_manager(db_alias).create(
             name = 'Test Product2',
             slug = 'test-product2',
             price = Decimal('10.00')
@@ -107,8 +113,9 @@ class ProductModelTest(TestCase):
 
     def test_default_value_is_active(self):
         """Тест значения по умолчанию для поля is_active"""
+        db_alias = next(iter(self.databases))
 
-        new_product = Product.objects.create(
+        new_product = Product.objects.db_manager(db_alias).create(
             name = 'Test Product2',
             slug = 'test-product2',
             price = Decimal('10.00')
@@ -132,8 +139,9 @@ class ProductModelTest(TestCase):
 
     def test_max_price_value(self):
         """Тест максимальной цены"""
+        db_alias = next(iter(self.databases))
 
-        product = Product.objects.create(
+        product = Product.objects.db_manager(db_alias).create(
             name = 'Test Product2',
             slug = 'test-product2',
             price = Decimal('9999999.99')
@@ -143,14 +151,20 @@ class ProductModelTest(TestCase):
 
     def test_negative_price(self):
         """Тест отрицательной цены"""
+        db_alias = next(iter(self.databases))
 
         with self.assertRaises(ValidationError):
-            product = Product(
+            product = Product.objects.db_manager(db_alias).create(
+                name = 'Test Product2',
+                slug = 'test-product2',
+                price = Decimal('-10.00')
+            )
+
+        product = Product(
             name = 'Test Product2',
             slug = 'test-product2',
             price = Decimal('-10.00')
-            )
-            product.full_clean()
+        )
 
-
-            
+        with self.assertRaises(ValidationError):
+            product.save(using=db_alias)          

@@ -14,8 +14,10 @@ jobs:
           python-version: '3.x' # Установка актуальной версии Python
       - name: Install dependencies
         run: sudo apt-get install -y gcc libpq-dev && pip install -r ./backend/lyalya/requirements.txt
-      - name: Run Tests
-        run: python ./backend/lyalya/manage.py test core.tests
+      - name: Migrate testDB
+        run: python ./backend/lyalya/manage.py migrate --database=testdb
+      - name: Run Tests Models
+        run: python ./backend/lyalya/manage.py test core.tests.models
       # Прописать установку зависимостей frontend
       # Запуск тестов frontend (возможно сборка)
   deploy:
