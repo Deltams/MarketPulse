@@ -52,9 +52,18 @@ services:
 
 #------------------------------------
 
+  frontend:
+    build: ./frontend
+    container_name: frontend-deploy 
+    ports:
+      - 5173:5173
+
+#------------------------------------
+
 volumes:
   my-pg-volume: {}
   my-pg-admin: {}
   backend-deploy:
+  frontend-deploy:
   # grafana-storage: {}
   # prometheus-data: {}
