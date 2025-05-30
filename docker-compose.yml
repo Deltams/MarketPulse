@@ -77,8 +77,8 @@ services:
   prometheus:
     image: prom/prometheus
     container_name: prometheus-2025
-    ports:
-      - "9090:9090"
+    # ports: # Открыть/закрыть для внешнего доступа
+    #   - "9090:9090"
     volumes:
       - ./backend/scripts/prometheus-scripts/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
@@ -89,8 +89,8 @@ services:
   node-exporter:
     image: prom/node-exporter
     container_name: exporter-2025
-    ports:
-      - "9100:9100"
+    # ports: # Открыть/закрыть для внешнего доступа
+    #   - "9100:9100"
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
