@@ -51,3 +51,7 @@ DATABASES = {
 2. Выполнить команду `python manage.py makemigrations`, можно добавить флаг `--settings=lyalya.settings_test` для тестовой БД
 3. Выполнить команду `python manage.py migrate`, можно добавить флаг `--settings=lyalya.settings_test` для тестовой БД
 4. Запустить тесты `python manage.py test core.tests.models`, можно добавить флаг `--settings=lyalya.settings_test` для тестовой БД, если все тесты пройдены успешно - миграция выполнена успешно
+
+Локальный запуск frontend:
+1. В директории frontend выполнить установку зависимостей `npm install`
+2. Из директории frontend выполнить команду `"npm run dev`

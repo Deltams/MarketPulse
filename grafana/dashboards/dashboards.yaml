@@ -1,0 +1,22 @@
+apiVersion: 1
+providers:
+  - name: 'default'
+    orgId: 1860
+    folder: ''
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 20
+    options:
+      path: /etc/grafana/provisioning/dashboards/node-exporter
+      foldersFromFilesStructure: true
+  
+  # # Прописать свои метрики и их отображение 
+  # - name: 'my-python-dashboard'
+  #   orgId: 1
+  #   folder: 'my-python-exporter'
+  #   type: file
+  #   disableDeletion: false
+  #   updateIntervalSeconds: 20
+  #   options:
+  #     path: /etc/grafana/provisioning/dashboards/my-python-exporter
+  #     foldersFromFilesStructure: true
