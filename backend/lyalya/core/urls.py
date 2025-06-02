@@ -17,7 +17,6 @@ urlpatterns = [
     path('products/', views.product_list_view),
     path('products/<int:product_id>/', views.product_detail_view),
 
-    path('api/v1/categorylist/', views.CategoryAPIView.as_view()),
     path('api/v1/categories/', views.CategoryListCreateView.as_view()),
     path('api/v1/categories/<int:pk>/', views.CategoryRetrieveUpdateDestroyView.as_view()),
     

@@ -2,39 +2,25 @@ from django.test import TestCase
 from django.db import IntegrityError
 from django.contrib.auth.models import User
 from ...models import Cart, Product, CartItem, UserProfile
-from decimal import Decimal
-from core.tests.runners import get_db_test
+from ..Bakery import user_profile_recipe, cart_recipe, minimal_product_recipe, cart_item_recipe
 
 class CartItemModelTest(TestCase):
-    databases = get_db_test()
+
 
     @classmethod
     def setUpTestData(cls):
         """Создание тестовых данных"""
-        db_alias = next(iter(cls.databases))
 
-        cls.user = User.objects.db_manager(db_alias).create_user(
-            username='testuser',
-            email='test@gmail.com',
-            password='pass1234'
-        )
-        cls.user_profile = UserProfile.objects.db_manager(db_alias).create(user=cls.user)
+        cls.user_profile = user_profile_recipe.make()
 
-        cls.cart = Cart.objects.db_manager(db_alias).create(user = cls.user_profile)
+        cls.cart = cart_recipe.make(user = cls.user_profile)
 
-        cls.product = Product.objects.db_manager(db_alias).create(
-            name='Test Product',
-            slug='test-product',
-            price=Decimal('10.00')
-        )
+        cls.product = minimal_product_recipe.make()
 
-        cls.product2 = Product.objects.db_manager(db_alias).create(
-            name='Test Product2',
-            slug='test-product2',
-            price=Decimal('99.00')
-        )
+        cls.product2 = minimal_product_recipe.make()
         
-        cls.cart_item = CartItem.objects.db_manager(db_alias).create(
+        
+        cls.cart_item = cart_item_recipe.make(
             cart=cls.cart,
             product=cls.product
         )
@@ -69,9 +55,8 @@ class CartItemModelTest(TestCase):
 
     def test_multiple_items_per_cart(self):
         """Тест добавления несольких товаров в одну корзину"""
-        db_alias = next(iter(self.databases))
 
-        CartItem.objects.db_manager(db_alias).create(
+        CartItem.objects.create(
             cart=self.cart,
             product=self.product2
         )

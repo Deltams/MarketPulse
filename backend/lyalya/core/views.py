@@ -65,10 +65,6 @@ def product_detail_view(request, product_id):
     return render(request, 'core/product-detail.html', {'product': product})
 
 
-class CategoryAPIView(generics.ListAPIView):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-
 
 class CategoryListCreateView(generics.ListCreateAPIView):
     queryset = Category.objects.all()

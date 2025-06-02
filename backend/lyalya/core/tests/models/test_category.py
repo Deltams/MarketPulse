@@ -1,22 +1,22 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 from ...models import Category
-from core.tests.runners import get_db_test
+from ..Bakery import full_category_recipe, minimal_category_recipe
 
 class CategoryModelTest(TestCase):
-    databases = get_db_test()
+
 
     @classmethod
     def setUpTestData(cls):
         """Создание тестовых данных"""
-        db_alias = next(iter(cls.databases))
 
-        cls.main_category = Category.objects.db_manager(db_alias).create(
+        cls.main_category = full_category_recipe.make(
             name = 'Main Category',
             slug = 'main-category'
         )
 
-        cls.child_category = Category.objects.db_manager(db_alias).create(
+        cls.child_category = full_category_recipe.make(
             name = 'Child Category',
             slug = 'child-category',
             parent = cls.main_category
@@ -37,12 +37,8 @@ class CategoryModelTest(TestCase):
 
     def test_optional_parent(self):
         """Тест необязательного поля родительской категории"""
-        db_alias = next(iter(self.databases))
 
-        new_category = Category.objects.db_manager(db_alias).create(
-            name = 'New Category',
-            slug = 'new-category'
-        )
+        new_category = minimal_category_recipe.make()
         self.assertIsNone(new_category.parent)
 
 
@@ -65,6 +61,7 @@ class CategoryModelTest(TestCase):
 
     def test_verbose_name_plural(self):
         """Тест отображения множественного числа"""
+
         self.assertEqual(Category._meta.verbose_name_plural, 'Categories')
     
 
@@ -84,15 +81,6 @@ class CategoryModelTest(TestCase):
 
     def test_unique_slug(self):
         """Тест уникальности slug"""
-        db_alias = next(iter(self.databases))
 
-        new_category = Category(
-            name='New Category',
-            slug='child-category'
-        )
-
-        with self.assertRaises(ValidationError):
-            similar_objects = Category.objects.db_manager(db_alias).filter(slug=new_category.slug)
-
-            if similar_objects.exists():
-                raise ValidationError("Slug must be unique.")
+        with self.assertRaises(IntegrityError):
+            minimal_category_recipe.make(slug="child-category")

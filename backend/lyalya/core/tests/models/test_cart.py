@@ -2,24 +2,17 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from django.db import IntegrityError, transaction
 from ...models import UserProfile, Cart
-from core.tests.runners import get_db_test
+from ..Bakery import user_profile_recipe, cart_recipe
 
 class CartModelTest(TestCase):
-    databases = get_db_test()
 
     @classmethod
     def setUpTestData(cls):
         """Создание тестовых данных"""
-        db_alias = next(iter(cls.databases))
 
-        cls.user = User.objects.db_manager(db_alias).create_user(
-            username='testuser',
-            email='test@gmail.com',
-            password='pass1234'
-        )
-        cls.user_profile = UserProfile.objects.db_manager(db_alias).create(user=cls.user)
+        cls.user_profile = user_profile_recipe.make()
 
-        cls.cart = Cart.objects.db_manager(db_alias).create(user = cls.user_profile)
+        cls.cart = cart_recipe.make(user = cls.user_profile)
 
 
     def test_cart_creation(self):
@@ -29,7 +22,6 @@ class CartModelTest(TestCase):
 
     def test_one_to_one_relation_user_profile(self):
         """Тест связи один-к-одному с профилем пользователя"""
-        db_alias = next(iter(self.databases))
 
         user_profile = self.cart._meta.get_field('user')
         self.assertEqual(user_profile.remote_field.model, UserProfile)
@@ -39,11 +31,11 @@ class CartModelTest(TestCase):
 
         with self.assertRaises(IntegrityError):
             try:
-                with transaction.atomic(using=db_alias):
-                    Cart.objects.db_manager(db_alias).create(
+                with transaction.atomic():
+                    cart_recipe.make(
                         user = self.user_profile
                     )
             except IntegrityError:
                 raise
         
-        self.assertEqual(Cart.objects.db_manager(db_alias).count(), 1)
+        self.assertEqual(Cart.objects.count(), 1)

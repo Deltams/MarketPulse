@@ -1,35 +1,27 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
-from decimal import Decimal
+from django.db import IntegrityError, transaction
 from ...models import Category, Brand, Product
-from core.tests.runners import get_db_test
-
+from ..Bakery import minimal_brand_recipe, full_product_recipe, minimal_category_recipe, minimal_product_recipe
 
 class ProductModelTest(TestCase):
-    databases = get_db_test()
+
 
     @classmethod
     def setUpTestData(cls):
         """Создание тестовых данных"""
-        db_alias = next(iter(cls.databases))
 
-        cls.brand = Brand.objects.db_manager(db_alias).create(
-            name = 'Test Brand',
-            slug = 'test-brand',
-        )
+        cls.brand = minimal_brand_recipe.make()
 
-        cls.category = Category.objects.db_manager(db_alias).create(
-            name = 'Main Category',
-            slug = 'main-category'
-        )
+        cls.category = minimal_category_recipe.make()
 
-        cls.product = Product.objects.db_manager(db_alias).create(
+        cls.product = full_product_recipe.make(
             brand = cls.brand,
             category = cls.category,
             name = 'Test Product',
             slug = 'test-product',
             description = 'test description',
-            price = Decimal('100.99'),
+            price = 100.99,
             is_active = False
         )
 
@@ -42,7 +34,7 @@ class ProductModelTest(TestCase):
         self.assertEqual(self.product.name, 'Test Product')
         self.assertEqual(self.product.slug, 'test-product')
         self.assertEqual(self.product.description, 'test description')
-        self.assertEqual(self.product.price, Decimal('100.99'))
+        self.assertEqual(self.product.price, 100.99)
         self.assertEqual(self.product.is_active, False)
 
 
@@ -82,30 +74,18 @@ class ProductModelTest(TestCase):
 
     def test_unique_slug(self):
         """Тест уникальности slug"""
-        db_alias = next(iter(self.databases))
 
-        new_product = Product(
-            name = "Test Product2",
-            slug = "test-product",
-            price = Decimal('10.00')
-        )
-
-        with self.assertRaises(ValidationError):
-            similar_objects = Product.objects.db_manager(db_alias).filter(slug=new_product.slug)
-
-            if similar_objects.exists():
-                raise ValidationError("Slug must be unique.")
+        with self.assertRaises(IntegrityError):
+            minimal_product_recipe.make(
+                slug = "test-product"
+            )
 
 
     def test_optional_fields(self):
         """Тест необязательных полей"""
-        db_alias = next(iter(self.databases))
 
-        new_product = Product.objects.db_manager(db_alias).create(
-            name = 'Test Product2',
-            slug = 'test-product2',
-            price = Decimal('10.00')
-        )
+        new_product = minimal_product_recipe.make()
+
         self.assertIsNone(new_product.brand)
         self.assertIsNone(new_product.category)
         self.assertIsNone(new_product.description)
@@ -113,13 +93,8 @@ class ProductModelTest(TestCase):
 
     def test_default_value_is_active(self):
         """Тест значения по умолчанию для поля is_active"""
-        db_alias = next(iter(self.databases))
 
-        new_product = Product.objects.db_manager(db_alias).create(
-            name = 'Test Product2',
-            slug = 'test-product2',
-            price = Decimal('10.00')
-        )
+        new_product = minimal_product_recipe.make()
         self.assertTrue(new_product.is_active)
 
 
@@ -139,32 +114,17 @@ class ProductModelTest(TestCase):
 
     def test_max_price_value(self):
         """Тест максимальной цены"""
-        db_alias = next(iter(self.databases))
 
-        product = Product.objects.db_manager(db_alias).create(
-            name = 'Test Product2',
-            slug = 'test-product2',
-            price = Decimal('9999999.99')
+        product = minimal_product_recipe.make(
+            price = 9999999.99
         )
-        self.assertEqual(product.price, Decimal('9999999.99'))
+        self.assertEqual(product.price, 9999999.99)
 
 
     def test_negative_price(self):
         """Тест отрицательной цены"""
-        db_alias = next(iter(self.databases))
 
         with self.assertRaises(ValidationError):
-            product = Product.objects.db_manager(db_alias).create(
-                name = 'Test Product2',
-                slug = 'test-product2',
-                price = Decimal('-10.00')
-            )
-
-        product = Product(
-            name = 'Test Product2',
-            slug = 'test-product2',
-            price = Decimal('-10.00')
-        )
-
-        with self.assertRaises(ValidationError):
-            product.save(using=db_alias)          
+            minimal_product_recipe.make(
+                price = -10.00
+            )    
