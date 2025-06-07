@@ -3,7 +3,23 @@ on:
   push:
     branches: [main]
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Set up Docker Compose
+        uses: docker/setup-compose-action@v1
+        with:
+          version: latest
+      - name: Check Docker Compose Syntax
+        run: sudo docker compose config
+      - name: We are checking the possibility of assembling containers
+        run: sudo docker compose up --build -d
+      - name: Stop and delete the previous version
+        run: sudo docker compose down -v
   test:
+    needs: [build]
     runs-on: self-hosted # ubuntu-latest, если на серверах GitHub; self-hosted, если свой сервер
     steps:
       - name: Check out repository code
@@ -18,10 +34,14 @@ jobs:
         run: python ./backend/lyalya/manage.py makemigrations --settings=lyalya.settings_test && python ./backend/lyalya/manage.py migrate --settings=lyalya.settings_test 
       - name: Run Tests Models
         run: python ./backend/lyalya/manage.py test core.tests.models --settings=lyalya.settings_test
+      - name: Run Tests API View
+        run: python ./backend/lyalya/manage.py test core.tests.api_view --settings=lyalya.settings_test
+      - name: Run Tests HTML View
+        run: python ./backend/lyalya/manage.py test core.tests.html_view --settings=lyalya.settings_test
       # Прописать установку зависимостей frontend
       # Запуск тестов frontend (возможно сборка)
   deploy:
-    needs: [test]
+    needs: [build, test]
     runs-on: self-hosted
     steps:
       - name: Check out repository code
