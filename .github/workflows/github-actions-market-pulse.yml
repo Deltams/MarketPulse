@@ -1,4 +1,4 @@
-name: Checking and publishing the project
+name: Checking and publishing the project (CI-CD)
 on:
   push:
     branches: [main]
@@ -18,6 +18,8 @@ jobs:
         run: sudo docker compose up --build -d
       - name: Stop and delete the previous version
         run: sudo docker compose down -v
+      - name: Cleaning up unused images
+        run: sudo docker image prune -f # -f пропуск вопроса [y/N]
   test:
     needs: [build]
     runs-on: self-hosted # ubuntu-latest, если на серверах GitHub; self-hosted, если свой сервер
@@ -44,6 +46,8 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+      - name: Cleaning up unused images
+        run: sudo docker image prune -f # -f пропуск вопроса [y/N]
       - name: Stop and delete the previous version
         run: sudo docker compose down -v # удаляем предыдущий запущенный контейнер; флаг -v означает, что  удаляем данные, которые находились в томах
       - name: Deploy repository
