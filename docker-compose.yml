@@ -26,7 +26,7 @@ services:
         parallelism: 0
         order: stop-first
       restart_policy:
-        condition: any
+        condition: on-failure
         delay: 5s
         max_attempts: 3
         window: 120s
@@ -66,7 +66,7 @@ services:
         parallelism: 0
         order: stop-first
       restart_policy:
-        condition: any
+        condition: on-failure
         delay: 5s
         max_attempts: 3
         window: 120s
@@ -92,7 +92,7 @@ services:
         parallelism: 0
         order: stop-first
       restart_policy:
-        condition: any
+        condition: on-failure
         delay: 5s
         max_attempts: 3
         window: 120s
@@ -115,7 +115,7 @@ services:
         parallelism: 0
         order: stop-first
       restart_policy:
-        condition: any
+        condition: on-failure
         delay: 5s
         max_attempts: 3
         window: 120s
@@ -144,7 +144,7 @@ services:
         parallelism: 0
         order: stop-first
       restart_policy:
-        condition: any
+        condition: on-failure
         delay: 5s
         max_attempts: 3
         window: 120s
@@ -172,7 +172,7 @@ services:
         parallelism: 0
         order: stop-first
       restart_policy:
-        condition: any
+        condition: on-failure
         delay: 5s
         max_attempts: 3
         window: 120s
@@ -203,7 +203,7 @@ services:
         parallelism: 0
         order: stop-first
       restart_policy:
-        condition: any
+        condition: on-failure
         delay: 5s
         max_attempts: 3
         window: 120s
