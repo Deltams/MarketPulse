@@ -14,10 +14,18 @@ jobs:
           version: latest
       - name: Check Docker Compose Syntax
         run: sudo docker compose config
-      - name: We are checking the possibility of assembling containers
-        run: sudo docker compose up --build -d
-      - name: Stop and delete the previous version
-        run: sudo docker compose down -v
+      - name: Creating a swarm docker
+        run: sudo docker swarm init
+      # - name: We are checking the possibility of assembling containers
+      #   run: sudo docker compose up --build -d
+      # - name: Stop and delete the previous version
+      #   run: sudo docker compose down -v
+      - name: Building a new version
+        run: sudo docker compose build
+      - name: Deploy repository
+        run: sudo docker stack deploy --compose-file docker-compose.yml myapp
+      - name: Stopping and deleting the compiled application
+        run: sudo docker stack rm myapp
       - name: Cleaning up unused images
         run: sudo docker system prune -f # -f пропуск вопроса [y/N] (можно -af тогда ВСЕ лишнее удалим) 
   test:
