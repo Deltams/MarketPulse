@@ -74,6 +74,7 @@ services:
 
   backend:
     build: ./backend/lyalya
+    image: backend-deploy
     container_name: backend-deploy 
     ports:
       - 8000:8000
@@ -99,6 +100,7 @@ services:
 
   frontend:
     build: ./frontend
+    image: frontend-deploy
     container_name: frontend-deploy 
     ports:
       - 4488:4488
