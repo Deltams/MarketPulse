@@ -226,7 +226,8 @@ services:
 
 networks:
   main_network:
-    driver: bridge
+    driver: overlay
+    attachable: true
     external: false
 
 volumes:
