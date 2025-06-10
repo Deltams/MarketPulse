@@ -53,8 +53,8 @@ services:
       - ./backend/scripts/pg-admin-scripts/servers.json:/var/lib/pgadmin/servers.json
       - my-pg-admin:/var/lib/pgadmin
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres:
+          condition: service_healthy
     deploy:
       replicas: 1
       update_config:
@@ -79,8 +79,8 @@ services:
     ports:
       - 8000:8000
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres:
+          condition: service_healthy
     deploy:
       replicas: 1
       update_config:
