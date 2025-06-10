@@ -7,6 +7,8 @@ services:
   postgres:
     image: postgres
     container_name: my-postgres-2025
+    networks:
+      - main_network
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: qwer4617
@@ -42,6 +44,8 @@ services:
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin-2025
+    networks:
+      - main_network
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@pgadmin.com
       PGADMIN_DEFAULT_PASSWORD: admin
@@ -75,7 +79,9 @@ services:
   backend:
     build: ./backend/lyalya
     image: backend-deploy
-    container_name: backend-deploy 
+    container_name: backend-deploy
+    networks:
+      - main_network 
     ports:
       - 8000:8000
     depends_on:
@@ -101,7 +107,9 @@ services:
   frontend:
     build: ./frontend
     image: frontend-deploy
-    container_name: frontend-deploy 
+    container_name: frontend-deploy
+    networks:
+      - main_network 
     ports:
       - 4488:4488
     deploy:
@@ -125,6 +133,8 @@ services:
   grafana:
     image: grafana/grafana-oss
     container_name: grafana-2025
+    networks:
+      - main_network
     environment:
       GF_PATHS_PROVISIONING: '/etc/grafana/provisioning/'
     ports:
@@ -154,6 +164,8 @@ services:
   prometheus:
     image: prom/prometheus
     container_name: prometheus-2025
+    networks:
+      - main_network
     # ports: # Открыть/закрыть для внешнего доступа
     #   - "9090:9090"
     volumes:
@@ -181,6 +193,8 @@ services:
   node-exporter:
     image: prom/node-exporter
     container_name: exporter-2025
+    networks:
+      - main_network
     # ports: # Открыть/закрыть для внешнего доступа
     #   - "9100:9100"
     volumes:
@@ -209,6 +223,11 @@ services:
         window: 120s
 
 #------------------------------------ 
+
+networks:
+  main_network:
+    driver: bridge
+    external: false
 
 volumes:
   my-pg-volume: {}
