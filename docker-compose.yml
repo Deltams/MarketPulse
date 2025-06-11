@@ -31,7 +31,7 @@ services:
         condition: on-failure
         delay: 2s
         max_attempts: 6
-        window: 15s
+        window: 20s
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
