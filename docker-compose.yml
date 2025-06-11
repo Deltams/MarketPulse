@@ -31,7 +31,7 @@ services:
         condition: on-failure
         delay: 5s
         max_attempts: 3
-        window: 120s
+        window: 20s
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -h localhost"]
       interval: 10s
@@ -72,7 +72,7 @@ services:
         condition: on-failure
         delay: 5s
         max_attempts: 3
-        window: 120s
+        window: 20s
 
 #------------------------------------
 
@@ -100,7 +100,7 @@ services:
         condition: on-failure
         delay: 5s
         max_attempts: 3
-        window: 120s
+        window: 20s
 
 #------------------------------------
 
@@ -126,7 +126,7 @@ services:
         condition: on-failure
         delay: 5s
         max_attempts: 3
-        window: 120s
+        window: 20s
 
 #------------------------------------
 
@@ -157,7 +157,7 @@ services:
         condition: on-failure
         delay: 5s
         max_attempts: 3
-        window: 120s
+        window: 20s
 
 #------------------------------------
 
@@ -187,7 +187,7 @@ services:
         condition: on-failure
         delay: 5s
         max_attempts: 3
-        window: 120s
+        window: 20s
 
 #------------------------------------
   node-exporter:
@@ -220,7 +220,7 @@ services:
         condition: on-failure
         delay: 5s
         max_attempts: 3
-        window: 120s
+        window: 20s
 
 #------------------------------------ 
 

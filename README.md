@@ -72,6 +72,10 @@ sudo docker stack deploy --compose-file docker-compose.yml myapp
 ```
 sudo docker service ls
 ```
+4. Ручной перезапуск сервиса:
+```
+sudo docker service update --force name_service
+```
 
 Перезапуск docker swarm:
 ```
