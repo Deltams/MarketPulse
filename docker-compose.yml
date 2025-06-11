@@ -23,21 +23,21 @@ services:
         parallelism: 1
         order: start-first
         failure_action: rollback
-        delay: 10s
+        delay: 5s
       rollback_config:
         parallelism: 0
         order: stop-first
       restart_policy:
         condition: on-failure
-        delay: 5s
-        max_attempts: 3
-        window: 20s
+        delay: 2s
+        max_attempts: 6
+        window: 15s
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
-      retries: 5
-      start_period: 15s
+      retries: 3
+      start_period: 20s
 
 #------------------------------------
 
