@@ -54,6 +54,8 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+      - name: Stop and delete the previous version
+        run: sudo docker compose down -v
       - name: Cleaning up unused images
         run: sudo docker system prune -f # -f пропуск вопроса [y/N] (можно -af тогда ВСЕ лишнее удалим)
       - name: Building a new version
