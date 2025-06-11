@@ -72,3 +72,10 @@ sudo docker stack deploy --compose-file docker-compose.yml myapp
 ```
 sudo docker service ls
 ```
+
+Перезапуск docker swarm:
+```
+sudo docker swarm leave --force
+sudo rm -rf /var/lib/docker/swarm/*
+sudo docker swarm init
+```
