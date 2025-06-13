@@ -83,20 +83,20 @@
 
 **Дописать этот раздел**
 
-1. [docker-compose.yml](./docker-compose.yml) — описание
-2. [.gitignore](./.gitignore) — описание
-3. [datasources.yaml](./grafana/datasources/datasources.yaml) — описание
-4. [dashboards.yaml](./grafana/dashboards/dashboards.yaml) — описание
-5. [node-exporter](./grafana/dashboards/node-exporter/1860_rev37.json) — описание
-6. [vite.config.js](./frontend/vite.config.js) — описание
-7. [frontend/Dockerfile](./frontend/Dockerfile) — описание
-8. [servers.json](./backend/scripts/pg-admin-scripts/servers.json) — описание
-9. [prometheus.yml](./backend/scripts/prometheus-scripts/prometheus.yml) — описание
-10. [backend/Dockerfile](./backend/lyalya/Dockerfile) — описание
-11. [settings.py](./backend/lyalya/lyalya/settings.py) — описание
-12. [settings_test.py.py](./backend/lyalya/lyalya/settings_test.py) — описание
-13. [init.sql](./backend/app/config/init.sql) — описание
-14. [github-actions-market-pulse.yml](./.github/workflows/github-actions-market-pulse.yml) — описание
+1. [docker-compose.yml](./docker-compose.yml) — содержит инструкции по описанию действий для развертывания всей системы и описание поведения  в случае возникновения ошибок при сборке или работе контейнера
+2. [.gitignore](./.gitignore) — файл содержащий исключения на добавления в удаленный репозиторий GitHub
+3. [datasources.yaml](./grafana/datasources/datasources.yaml) — инструкции по приему данных из источника для Grafana
+4. [dashboards.yaml](./grafana/dashboards/dashboards.yaml) — инструкции по отображению данных из источников для Grafana
+5. [node-exporter](./grafana/dashboards/node-exporter/1860_rev37.json) — источник данных для Prometheus
+6. [vite.config.js](./frontend/vite.config.js) — инструкции для запуска frontend
+7. [frontend/Dockerfile](./frontend/Dockerfile) — сборка контейнера frontend
+8. [servers.json](./backend/scripts/pg-admin-scripts/servers.json) — файл настройки автоматического подключения к базе данных для pgAdmin
+9. [prometheus.yml](./backend/scripts/prometheus-scripts/prometheus.yml) — инструкции по регистрации источников данных для Prometheus
+10. [backend/Dockerfile](./backend/lyalya/Dockerfile) — сборка контейнера backend
+11. [settings.py](./backend/lyalya/lyalya/settings.py) — настройки по запуску основного backend
+12. [settings_test.py.py](./backend/lyalya/lyalya/settings_test.py) — настройки по запуску тестового backend
+13. [init.sql](./backend/app/config/init.sql) — инициализация базы данных при первом запуске системы
+14. [github-actions-market-pulse.yml](./.github/workflows/github-actions-market-pulse.yml) — описание действий для автоматического развертывания системы на сервере (CI-CD)
 
 #### Постоянная оптимизация производительности
 
