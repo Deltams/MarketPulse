@@ -83,8 +83,20 @@
 
 **Дописать этот раздел**
 
-1. docker-compose.yml
-2. 
+1. [docker-compose.yml](./docker-compose.yml) — описание
+2. [.gitignore](./.gitignore) — описание
+3. [datasources.yaml](./grafana/datasources/datasources.yaml) — описание
+4. [dashboards.yaml](./grafana/dashboards/dashboards.yaml) — описание
+5. [node-exporter](./grafana/dashboards/node-exporter/1860_rev37.json) — описание
+6. [vite.config.js](./frontend/vite.config.js) — описание
+7. [frontend/Dockerfile](./frontend/Dockerfile) — описание
+8. [servers.json](./backend/scripts/pg-admin-scripts/servers.json) — описание
+9. [prometheus.yml](./backend/scripts/prometheus-scripts/prometheus.yml) — описание
+10. [backend/Dockerfile](./backend/lyalya/Dockerfile) — описание
+11. [settings.py](./backend/lyalya/lyalya/settings.py) — описание
+12. [settings_test.py.py](./backend/lyalya/lyalya/settings_test.py) — описание
+13. [init.sql](./backend/app/config/init.sql) — описание
+14. [github-actions-market-pulse.yml](./.github/workflows/github-actions-market-pulse.yml) — описание
 
 #### Постоянная оптимизация производительности
 
