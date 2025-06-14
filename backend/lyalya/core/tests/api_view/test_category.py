@@ -1,7 +1,8 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
 from ...models import Category
-from ..Bakery import full_category_recipe, minimal_category_recipe
+from ...models import Product
+from ..Bakery import full_category_recipe, minimal_category_recipe, minimal_product_recipe
 
 
 
@@ -21,6 +22,20 @@ class CategoryAPITest(APITestCase):
             name = 'Child Category',
             slug = 'child-category',
             parent = cls.main_category
+        )
+
+
+
+        cls.product1 = minimal_product_recipe.make(
+            name = 'Product-1',
+            slug = 'product-1',
+            category = cls.main_category
+        )
+
+        cls.product2 = minimal_product_recipe.make(
+            name = 'Product-2',
+            slug = 'product-2',
+            category = cls.child_category
         )
 
 
@@ -124,4 +139,7 @@ class CategoryAPITest(APITestCase):
         response = self.client.post(url, data, format='json')
         
         self.assertEqual(response.status_code, 400)
+
+
+
     
