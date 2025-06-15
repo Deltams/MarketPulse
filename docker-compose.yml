@@ -36,7 +36,7 @@ services:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 20s
       timeout: 10s
-      retries: 3
+      retries: 4
       start_period: 20s
 
 #------------------------------------
@@ -73,12 +73,12 @@ services:
         delay: 5s
         max_attempts: 3
         window: 20s
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80"]
-      interval: 20s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:80"]
+    #   interval: 20s
+    #   timeout: 10s
+    #   retries: 4
+    #   start_period: 30s
 
 #------------------------------------
 
@@ -107,12 +107,12 @@ services:
         delay: 5s
         max_attempts: 3
         window: 20s
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+    #   interval: 15s
+    #   timeout: 10s
+    #   retries: 4
+    #   start_period: 30s
 
 #------------------------------------
 
@@ -139,12 +139,12 @@ services:
         delay: 5s
         max_attempts: 3
         window: 20s
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4488"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:4488"]
+    #   interval: 20s
+    #   timeout: 10s
+    #   retries: 4
+    #   start_period: 30s
 
 #------------------------------------
 
@@ -176,12 +176,12 @@ services:
         delay: 5s
         max_attempts: 3
         window: 20s
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
-      interval: 60s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+    #   interval: 20s
+    #   timeout: 10s
+    #   retries: 4
+    #   start_period: 30s
 
 #------------------------------------
 
@@ -212,12 +212,12 @@ services:
         delay: 5s
         max_attempts: 3
         window: 20s
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9090/-/healthy"]
-      interval: 60s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:9090/-/healthy"]
+    #   interval: 20s
+    #   timeout: 10s
+    #   retries: 4
+    #   start_period: 30s
 
 
 
@@ -253,12 +253,12 @@ services:
         delay: 5s
         max_attempts: 3
         window: 20s
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9100/metrics"]
-      interval: 60s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:9100/metrics"]
+    #   interval: 20s
+    #   timeout: 10s
+    #   retries: 4
+    #   start_period: 30s
 
 #------------------------------------ 
 
