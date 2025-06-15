@@ -301,13 +301,13 @@ sudo docker swarm init
 
 #### Основные команды запуска тестов
 
-**Запуск всех тестов проекта:**
+##### Запуск всех тестов проекта
 
 ```bash
 python manage.py test --settings=lyalya.settings_test core.tests
 ```
 
-**Запуск конкретного модуля:**
+##### Запуск конкретного модуля
 
 ```bash
 python manage.py test --settings=lyalya.settings_test core.tests.<test_module_name>
@@ -319,7 +319,7 @@ python manage.py test --settings=lyalya.settings_test core.tests.<test_module_na
 python manage.py test --settings=lyalya.settings_test core.tests.api_view
 ```
 
-**Запуск отдельного файла из модуля:**
+##### Запуск отдельного файла из модуля
 
 ```bash
 python manage.py test --settings=lyalya.settings_test core.tests.<test_module_name>.<filename>
