@@ -1,0 +1,14 @@
+[run]
+omit =
+    manage.py
+    lyalya/*
+    core/migrations/*
+    core/settings/*
+    core/tests/*
+    core/health.py
+    core/admin.py
+    core/apps.py
+    core/__init__.py
+    core/admin.py
+    core/apps.py
+    core/celery.py
