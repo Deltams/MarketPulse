@@ -55,4 +55,4 @@ jobs:
       - name: Building a new version
         run: sudo docker compose build
       - name: Deploy repository
-        run: sudo docker stack deploy --compose-file docker-compose.yml market_pulse_app
+        run: sudo docker stack deploy --compose-file docker-compose.yml market_pulse
