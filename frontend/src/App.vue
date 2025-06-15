@@ -1,23 +1,22 @@
 <template>
-  <v-app>
-    <v-app-bar app color="primary" dark>
-      <v-toolbar-title>MarketPulse</v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn to="/">Каталог</v-btn>
-      <v-btn to="/cart">Корзина</v-btn>
-      <v-btn v-if="authStore.user" to="/profile">Профиль</v-btn>
-      <v-btn v-if="authStore.user" @click="authStore.logout">Выйти</v-btn>
-      <v-btn v-else to="/login">Войти</v-btn>
-    </v-app-bar>
-    <v-main>
-      <v-container>
-        <router-view></router-view>
-      </v-container>
-    </v-main>
-  </v-app>
+  <AppLayout>
+    <router-view></router-view>
+  </AppLayout>
 </template>
 
-<script setup lang="js">
-import { useAuthStore } from './stores/auth';
-const authStore = useAuthStore();
+<script setup lang="ts">
+import AppLayout from './components/AppLayout.vue';
 </script>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  min-height: 100vh;
+}
+</style>
