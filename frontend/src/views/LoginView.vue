@@ -1,34 +1,38 @@
 <template>
   <div class="login">
     <div class="login-container">
-      <h1>Login</h1>
+      <h1>Вход в систему</h1>
       <form @submit.prevent="handleLogin" class="login-form">
         <div class="form-group">
-          <label for="username">Username</label>
+          <label for="username">Имя пользователя</label>
           <input
             type="text"
             id="username"
             v-model="username"
             required
             class="form-input"
+            :disabled="loading"
           />
         </div>
         
         <div class="form-group">
-          <label for="password">Password</label>
+          <label for="password">Пароль</label>
           <input
             type="password"
             id="password"
             v-model="password"
             required
             class="form-input"
+            :disabled="loading"
           />
         </div>
 
-        <div v-if="error" class="error">{{ error }}</div>
+        <div v-if="authStore.error" class="error">
+          {{ authStore.error }}
+        </div>
         
         <button type="submit" class="submit-button" :disabled="loading">
-          {{ loading ? 'Logging in...' : 'Login' }}
+          {{ loading ? 'Вход...' : 'Войти' }}
         </button>
       </form>
     </div>
@@ -36,38 +40,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import api from '../api/config';
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/authStore'
 
-const router = useRouter();
-const username = ref('');
-const password = ref('');
-const loading = ref(false);
-const error = ref('');
+const router = useRouter()
+const authStore = useAuthStore()
+
+const username = ref('')
+const password = ref('')
+
+const loading = computed(() => authStore.loading)
 
 const handleLogin = async () => {
-  loading.value = true;
-  error.value = '';
-  
   try {
-    const response = await api.post('/auth/token/', {
+    await authStore.login({
       username: username.value,
-      password: password.value,
-    });
-    
-    // Store the token
-    localStorage.setItem('token', response.data.access);
-    
-    // Redirect to home page
-    router.push('/');
-  } catch (err) {
-    error.value = 'Invalid username or password';
-    console.error('Login error:', err);
-  } finally {
-    loading.value = false;
+      password: password.value
+    })
+    router.push('/')
+  } catch (error) {
+    console.error('Login error:', error)
   }
-};
+}
 </script>
 
 <style scoped>
@@ -116,11 +111,17 @@ label {
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
+  transition: border-color 0.3s;
 }
 
 .form-input:focus {
   outline: none;
   border-color: #3498db;
+}
+
+.form-input:disabled {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
 }
 
 .submit-button {
@@ -131,11 +132,12 @@ label {
   border-radius: 4px;
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s;
 }
 
 .submit-button:hover:not(:disabled) {
   background-color: #34495e;
+  transform: translateY(-1px);
 }
 
 .submit-button:disabled {
@@ -147,5 +149,8 @@ label {
   color: #dc3545;
   text-align: center;
   margin-top: 1rem;
+  padding: 0.5rem;
+  background-color: #f8d7da;
+  border-radius: 4px;
 }
 </style>

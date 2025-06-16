@@ -1,4 +1,3 @@
-
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 
@@ -77,8 +76,28 @@ class CategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class ProductAPIView(generics.ListAPIView):
-    queryset = Product.objects.all()
     serializer_class = ProductSerializer
+
+    def get_queryset(self):
+        queryset = Product.objects.all()
+        
+        # Get all category parameters
+        category_params = {k: v for k, v in self.request.query_params.items() if k.startswith('category_')}
+        
+        if category_params:
+            from django.db.models import Q
+            category_filters = Q()
+            for category_id in category_params.values():
+                try:
+                    category_id = int(category_id)
+                    category_filters |= Q(category_id=category_id)
+                except (ValueError, TypeError):
+                    continue
+            
+            # Apply the filter
+            queryset = queryset.filter(category_filters)
+            
+        return queryset
 
 
 class ProductDetailAPIView(generics.RetrieveUpdateDestroyAPIView):

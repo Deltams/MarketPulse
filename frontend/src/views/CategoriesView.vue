@@ -1,18 +1,74 @@
 <template>
-  <div class="categories">
-    <h1>Categories</h1>
-    <div v-if="loading" class="loading">Loading...</div>
-    <div v-else-if="error" class="error">{{ error }}</div>
-    <div v-else class="categories-grid">
-      <div v-for="category in categories" :key="category.id" class="category-card">
-        <h3>{{ category.name }}</h3>
-        <p>{{ category.description }}</p>
-        <router-link :to="`/category/${category.id}`" class="view-link">
-          View Products
-        </router-link>
-      </div>
-    </div>
-  </div>
+  <v-container>
+    <v-row>
+      <v-col cols="12">
+        <h1 class="text-h4 mb-6">Категории</h1>
+      </v-col>
+    </v-row>
+
+    <v-row v-if="loading">
+      <v-col cols="12" class="text-center">
+        <v-progress-circular
+          indeterminate
+          color="primary"
+          size="64"
+        ></v-progress-circular>
+        <div class="text-h6 mt-4">Загрузка категорий...</div>
+      </v-col>
+    </v-row>
+
+    <v-row v-else-if="error">
+      <v-col cols="12">
+        <v-alert
+          type="error"
+          variant="tonal"
+          class="mb-4"
+        >
+          {{ error }}
+        </v-alert>
+      </v-col>
+    </v-row>
+
+    <v-row v-else>
+      <v-col
+        v-for="category in categories"
+        :key="category.id"
+        cols="12"
+        sm="6"
+        md="6"
+        lg="6"
+      >
+        <v-card
+          class="h-100"
+          :to="`/category/${category.id}`"
+          hover
+        >
+          <v-card-title class="text-h6">
+            {{ category.name }}
+          </v-card-title>
+
+          <v-card-text>
+            <p class="text-body-2 text-medium-emphasis">
+              {{ category.description }}
+            </p>
+          </v-card-text>
+
+          <v-card-actions>
+            <v-btn
+              block
+              color="primary"
+              variant="text"
+              :to="`/category/${category.id}`"
+              class="d-flex justify-center align-center"
+            >
+              Смотреть товары
+              <v-icon end icon="mdi-arrow-right" class="ml-2"></v-icon>
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script setup lang="ts">
@@ -34,7 +90,7 @@ const fetchCategories = async () => {
     const response = await api.get('/categories/');
     categories.value = response.data;
   } catch (err) {
-    error.value = 'Failed to load categories';
+    error.value = 'Не удалось загрузить категории';
     console.error('Error fetching categories:', err);
   } finally {
     loading.value = false;
@@ -47,58 +103,5 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.categories {
-  padding: 1rem;
-}
-
-.categories-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.category-card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 1rem;
-  background-color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.category-card h3 {
-  margin: 0 0 0.5rem 0;
-  color: #2c3e50;
-}
-
-.category-card p {
-  margin: 0 0 1rem 0;
-  color: #666;
-}
-
-.view-link {
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  background-color: #2c3e50;
-  color: white;
-  text-decoration: none;
-  border-radius: 4px;
-  transition: background-color 0.3s;
-}
-
-.view-link:hover {
-  background-color: #34495e;
-}
-
-.loading {
-  text-align: center;
-  padding: 2rem;
-  color: #666;
-}
-
-.error {
-  color: #dc3545;
-  text-align: center;
-  padding: 1rem;
-}
+/* Styles are now handled by Vuetify components */
 </style>

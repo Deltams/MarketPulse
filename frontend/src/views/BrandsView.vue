@@ -1,18 +1,75 @@
 <template>
-  <div class="brands">
-    <h1>Brands</h1>
-    <div v-if="loading" class="loading">Loading...</div>
-    <div v-else-if="error" class="error">{{ error }}</div>
-    <div v-else class="brands-grid">
-      <div v-for="brand in brands" :key="brand.id" class="brand-card">
-        <h3>{{ brand.name }}</h3>
-        <p>{{ brand.description }}</p>
-        <router-link :to="`/brands/${brand.id}`" class="view-link">
-          View Products
-        </router-link>
-      </div>
-    </div>
-  </div>
+  <v-container>
+    <v-row>
+      <v-col cols="12">
+        <h1 class="text-h4 mb-6">Бренды</h1>
+      </v-col>
+    </v-row>
+
+    <v-row v-if="loading">
+      <v-col cols="12" class="text-center">
+        <v-progress-circular
+          indeterminate
+          color="primary"
+          size="64"
+        ></v-progress-circular>
+        <div class="text-h6 mt-4">Загрузка брендов...</div>
+      </v-col>
+    </v-row>
+
+    <v-row v-else-if="error">
+      <v-col cols="12">
+        <v-alert
+          type="error"
+          variant="tonal"
+          class="mb-4"
+        >
+          {{ error }}
+        </v-alert>
+      </v-col>
+    </v-row>
+
+    <v-row v-else>
+      <v-col
+        v-for="brand in brands"
+        :key="brand.id"
+        :cols="brands.length === 1 ? 12 : 12"
+        :sm="brands.length === 1 ? 12 : 6"
+        :md="brands.length === 1 ? 12 : 6"
+        :lg="brands.length === 1 ? 12 : 6"
+        class="d-flex"
+      >
+        <v-card
+          class="h-100 w-100"
+          :to="`/brands/${brand.id}`"
+          hover
+        >
+          <v-card-title class="text-h6">
+            {{ brand.name }}
+          </v-card-title>
+
+          <v-card-text>
+            <p class="text-body-2 text-medium-emphasis">
+              {{ brand.description }}
+            </p>
+          </v-card-text>
+
+          <v-card-actions>
+            <v-btn
+              block
+              color="primary"
+              variant="text"
+              :to="`/brands/${brand.id}`"
+              class="d-flex justify-center align-center"
+            >
+              Смотреть товары
+              <v-icon end icon="mdi-arrow-right" class="ml-2"></v-icon>
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script setup lang="ts">
@@ -32,9 +89,21 @@ const error = ref('');
 const fetchBrands = async () => {
   try {
     const response = await api.get('/brandlist/');
-    brands.value = response.data;
+    brands.value = [
+      ...response.data,
+      // {
+      //   id: 999,
+      //   name: 'Тестовый бренд 1',
+      //   description: 'Это тестовый бренд для проверки отображения сетки. Здесь должно быть достаточно текста, чтобы проверить, как он помещается в карточке.'
+      // },
+      // {
+      //   id: 998,
+      //   name: 'Тестовый бренд 2',
+      //   description: 'Еще один тестовый бренд с длинным описанием для проверки того, как сетка адаптируется под разное количество контента в карточках.'
+      // }
+    ];
   } catch (err) {
-    error.value = 'Failed to load brands';
+    error.value = 'Не удалось загрузить бренды';
     console.error('Error fetching brands:', err);
   } finally {
     loading.value = false;
@@ -47,58 +116,5 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.brands {
-  padding: 1rem;
-}
-
-.brands-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.brand-card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 1rem;
-  background-color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.brand-card h3 {
-  margin: 0 0 0.5rem 0;
-  color: #2c3e50;
-}
-
-.brand-card p {
-  margin: 0 0 1rem 0;
-  color: #666;
-}
-
-.view-link {
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  background-color: #2c3e50;
-  color: white;
-  text-decoration: none;
-  border-radius: 4px;
-  transition: background-color 0.3s;
-}
-
-.view-link:hover {
-  background-color: #34495e;
-}
-
-.loading {
-  text-align: center;
-  padding: 2rem;
-  color: #666;
-}
-
-.error {
-  color: #dc3545;
-  text-align: center;
-  padding: 1rem;
-}
+/* Styles are now handled by Vuetify components */
 </style>

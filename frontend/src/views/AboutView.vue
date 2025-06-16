@@ -1,10 +1,10 @@
 <template>
   <div class="about">
-    <h1>About MarketPulse</h1>
+    <h1>О MarketPulse</h1>
     <div class="content">
-      <p>Welcome to MarketPulse - your one-stop destination for all your shopping needs.</p>
-      <p>We offer a wide range of products from various categories and brands, ensuring you find exactly what you're looking for.</p>
-      <p>Our mission is to provide a seamless shopping experience with quality products and excellent customer service.</p>
+      <p>Добро пожаловать в MarketPulse - вашу платформу для удобной торговли и покупок.</p>
+      <p>Мы предоставляем продавцам инструменты для управления товарами и заказами, а покупателям - удобный поиск и оформление покупок.</p>
+      <p>Наша цель - создать эффективную и прозрачную систему взаимодействия между продавцами и покупателями с полным контролем над процессом продаж.</p>
     </div>
   </div>
 </template>

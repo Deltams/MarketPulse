@@ -1,82 +1,86 @@
 <template>
-  <div class="app-layout">
-    <header class="header">
-      <nav class="nav">
-        <router-link to="/" class="nav-link">Home</router-link>
-        <router-link to="/categories" class="nav-link">Categories</router-link>
-        <router-link to="/brands" class="nav-link">Brands</router-link>
-        <router-link to="/products" class="nav-link">Products</router-link>
-        <router-link to="/about" class="nav-link">About</router-link>
-        <div class="nav-right">
-          <router-link to="/login" class="nav-link">Login</router-link>
-          <router-link to="/profile" class="nav-link">Profile</router-link>
+  <v-app>
+    <v-app-bar color="primary" density="compact" elevation="1">
+      <v-container class="d-flex align-center">
+        <v-app-bar-title>
+          <router-link to="/" class="text-decoration-none text-white">
+            MarketPulse
+          </router-link>
+        </v-app-bar-title>
+
+        <v-spacer></v-spacer>
+
+        <v-btn-group class="d-none d-md-flex">
+          <v-btn to="/categories" variant="text" color="white">
+            Категории
+          </v-btn>
+          <v-btn to="/brands" variant="text" color="white">
+            Бренды
+          </v-btn>
+          <v-btn to="/products" variant="text" color="white">
+            Товары/Услуги?
+          </v-btn>
+          <v-btn to="/about" variant="text" color="white">
+            О нас
+          </v-btn>
+        </v-btn-group>
+
+        <v-spacer></v-spacer>
+
+        <div class="d-flex align-center">
+          <CartWidget />
+          <v-btn to="/login" variant="text" color="white" class="ml-2">
+            Войти
+          </v-btn>
+          <v-btn to="/profile" variant="text" color="white">
+            Профиль
+          </v-btn>
         </div>
-      </nav>
-    </header>
 
-    <main class="main-content">
-      <slot></slot>
-    </main>
+        <v-app-bar-nav-icon
+          class="d-md-none"
+          @click="drawer = !drawer"
+        ></v-app-bar-nav-icon>
+      </v-container>
+    </v-app-bar>
 
-    <footer class="footer">
-      <p>&copy; 2024 MarketPulse. All rights reserved.</p>
-    </footer>
-  </div>
+    <v-navigation-drawer v-model="drawer" location="right" temporary>
+      <v-list>
+        <v-list-item to="/categories" title="Категории"></v-list-item>
+        <v-list-item to="/brands" title="Бренды"></v-list-item>
+        <v-list-item to="/products" title="Товары/Услуги?"></v-list-item>
+        <v-list-item to="/about" title="О нас"></v-list-item>
+        <v-divider></v-divider>
+        <v-list-item to="/login" title="Войти"></v-list-item>
+        <v-list-item to="/profile" title="Профиль "></v-list-item>
+      </v-list>
+    </v-navigation-drawer>
+
+    <v-main>
+      <v-container fluid class="fill-height pa-4">
+        <slot></slot>
+      </v-container>
+    </v-main>
+
+    <v-footer app color="primary" class="text-center d-flex justify-center">
+      <span class="text-white">&copy; {{ new Date().getFullYear() }} MarketPulse. Все права защищены.</span>
+    </v-footer>
+  </v-app>
 </template>
 
 <script setup lang="ts">
-// Component logic can be added here
+import { ref } from 'vue'
+import CartWidget from '@/components/cart/CartWidget.vue'
+
+const drawer = ref(false)
 </script>
 
 <style scoped>
-.app-layout {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+.v-main {
+  min-height: calc(100vh - 64px - 36px); /* viewport height - app bar - footer */
 }
 
-.header {
-  background-color: #2c3e50;
-  padding: 1rem;
-}
-
-.nav {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.nav-right {
-  margin-left: auto;
-}
-
-.nav-link {
-  color: white;
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  transition: background-color 0.3s;
-}
-
-.nav-link:hover {
-  background-color: #34495e;
-}
-
-.main-content {
-  flex: 1;
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
-}
-
-.footer {
-  background-color: #2c3e50;
-  color: white;
-  text-align: center;
-  padding: 1rem;
-  margin-top: auto;
+.v-container {
+  max-width: 1400px !important;
 }
 </style>

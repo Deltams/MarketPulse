@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import HomeView from '../views/HomeView.vue';
 import CatalogView from '../views/CatalogView.vue';
 import ProductView from '../views/ProductView.vue';
 import LoginView from '../views/LoginView.vue';
@@ -9,9 +10,11 @@ import BrandsView from '../views/BrandsView.vue';
 import BrandView from '../views/BrandView.vue';
 import ProductsView from '../views/ProductsView.vue';
 import UserProfileView from '../views/UserProfileView.vue';
+import CartView from '@/views/CartView.vue';
 
 const routes = [
-  { path: '/', name: 'catalog', component: CatalogView },
+  { path: '/', name: 'home', component: HomeView },
+  { path: '/catalog', name: 'catalog', component: CatalogView },
   { path: '/about', name: 'about', component: AboutView },
   { path: '/categories', name: 'categories', component: CategoriesView },
   { path: '/category/:id', name: 'category', component: CategoryView },
@@ -22,6 +25,7 @@ const routes = [
   { path: '/products/:id', name: 'product', component: ProductView },
   { path: '/login', name: 'login', component: LoginView },
   { path: '/profile', name: 'profile', component: UserProfileView },
+  { path: '/cart', name: 'cart', component: CartView },
 ];
 
 const router = createRouter({

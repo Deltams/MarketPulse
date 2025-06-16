@@ -1,23 +1,77 @@
 <template>
-  <div class="category">
-    <div v-if="loading" class="loading">Loading...</div>
-    <div v-else-if="error" class="error">{{ error }}</div>
+  <v-container>
+    <div v-if="loading" class="text-center">
+      <v-progress-circular
+        indeterminate
+        color="primary"
+        size="64"
+      ></v-progress-circular>
+      <div class="text-h6 mt-4">Загрузка категории...</div>
+    </div>
+
+    <div v-else-if="error">
+      <v-alert
+        type="error"
+        variant="tonal"
+        class="mb-4"
+      >
+        {{ error }}
+      </v-alert>
+    </div>
+
     <template v-else>
-      <h1>{{ category.name }}</h1>
-      <p class="description">{{ category.description }}</p>
+      <v-row>
+        <v-col cols="12">
+          <h1 class="text-h4 mb-2">{{ category.name }}</h1>
+          <p class="text-body-1 text-medium-emphasis mb-6">{{ category.description }}</p>
+        </v-col>
+      </v-row>
       
-      <div class="products-grid">
-        <div v-for="product in products" :key="product.id" class="product-card">
-          <h3>{{ product.name }}</h3>
-          <p class="price">${{ product.price }}</p>
-          <p class="description">{{ product.description }}</p>
-          <router-link :to="`/products/${product.id}`" class="view-link">
-            View Details
-          </router-link>
-        </div>
-      </div>
+      <v-row>
+        <v-col
+          v-for="product in products"
+          :key="product.id"
+          :cols="products.length === 1 ? 12 : 12"
+          :sm="products.length === 1 ? 12 : 6"
+          :md="products.length === 1 ? 12 : 6"
+          :lg="products.length === 1 ? 12 : 6"
+          class="d-flex"
+        >
+          <v-card
+            class="h-100 w-100"
+            :to="`/products/${product.id}`"
+            hover
+          >
+            <v-card-title class="text-h6">
+              {{ product.name }}
+            </v-card-title>
+
+            <v-card-text>
+              <p class="text-h6 text-primary mb-2">
+                {{ formatPrice(product.price) }}
+              </p>
+              <p class="text-body-2 text-medium-emphasis">
+                {{ product.description }}
+              </p>
+            </v-card-text>
+
+            <v-card-actions>
+              <v-btn
+                block
+                color="primary"
+                variant="text"
+                :to="`/products/${product.id}`"
+                class="d-flex justify-center align-center"
+              >
+                Подробнее
+                <v-icon end icon="mdi-arrow-right" class="ml-2"></v-icon>
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-col>
+      </v-row>
     </template>
-  </div>
+  </v-container>
 </template>
 
 <script setup lang="ts">
@@ -44,18 +98,25 @@ const products = ref<Product[]>([]);
 const loading = ref(true);
 const error = ref('');
 
+const formatPrice = (price: number) => {
+  return new Intl.NumberFormat('ru-RU', {
+    style: 'currency',
+    currency: 'RUB'
+  }).format(price);
+};
+
 const fetchCategoryData = async () => {
   try {
     const categoryId = route.params.id;
     const [categoryResponse, productsResponse] = await Promise.all([
       api.get(`/categories/${categoryId}/`),
-      api.get(`/productlist/?category=${categoryId}`)
+      api.get('/productlist/', { params: { category_0: categoryId } })
     ]);
     
     category.value = categoryResponse.data;
-    products.value = productsResponse.data;
+    products.value = productsResponse.data.results || productsResponse.data;
   } catch (err) {
-    error.value = 'Failed to load category data';
+    error.value = 'Не удалось загрузить данные категории';
     console.error('Error fetching category data:', err);
   } finally {
     loading.value = false;
@@ -68,65 +129,5 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.category {
-  padding: 1rem;
-}
-
-.description {
-  color: #666;
-  margin-bottom: 2rem;
-}
-
-.products-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.product-card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 1rem;
-  background-color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.product-card h3 {
-  margin: 0 0 0.5rem 0;
-  color: #2c3e50;
-}
-
-.price {
-  font-weight: bold;
-  color: #2c3e50;
-  margin: 0.5rem 0;
-}
-
-.view-link {
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  background-color: #2c3e50;
-  color: white;
-  text-decoration: none;
-  border-radius: 4px;
-  transition: background-color 0.3s;
-  margin-top: 1rem;
-}
-
-.view-link:hover {
-  background-color: #34495e;
-}
-
-.loading {
-  text-align: center;
-  padding: 2rem;
-  color: #666;
-}
-
-.error {
-  color: #dc3545;
-  text-align: center;
-  padding: 1rem;
-}
+/* Styles are now handled by Vuetify components */
 </style>

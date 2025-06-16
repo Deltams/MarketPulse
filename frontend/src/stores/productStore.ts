@@ -1,78 +1,111 @@
 import { defineStore } from 'pinia'
-import axios from 'axios'
+import { ref, computed } from 'vue'
+import api from '@/api/config'
 
 interface Product {
   id: number
   name: string
   description: string
   price: number
-  imageUrl?: string
+  image: string
+  category: number
+  brand: number
+  seller: number
+  stock: number
+  created_at: string
+  updated_at: string
 }
 
-export const useProductStore = defineStore('product', {
-  state: () => ({
-    products: [] as Product[],
-    loading: false,
-    error: null as string | null
-  }),
+export const useProductStore = defineStore('product', () => {
+  const products = ref<Product[]>([])
+  const loading = ref(false)
+  const error = ref<string | null>(null)
 
-  actions: {
-    async fetchProducts() {
-      console.log('Fetching products...')
-      this.loading = true
-      this.error = null
-      
-      try {
-        const response = await axios.get('http://localhost:8000/api/v1/productlist/')
-        console.log('Response:', response)
-        console.log('Response data:', response.data)
-        
-        // Убедимся, что данные являются массивом
-        const products = Array.isArray(response.data) ? response.data : []
-        
-        // Обновляем состояние
-        this.products = products
-        console.log('Products after update:', this.products)
-      } catch (error) {
-        console.error('Error fetching products:', error)
-        this.error = 'Failed to load products'
-        this.products = []
-      } finally {
-        this.loading = false
-      }
-    },
-
-    async createProduct(productData: Omit<Product, 'id'>) {
-      try {
-        const response = await axios.post('http://localhost:8000/api/v1/productlist/', productData)
-        this.products.push(response.data)
-      } catch (error) {
-        console.error('Error creating product:', error)
-        throw error
-      }
-    },
-
-    async updateProduct(id: number, productData: Partial<Product>) {
-      try {
-        const response = await axios.put(`http://localhost:8000/api/v1/productlist/${id}/`, productData)
-        const index = this.products.findIndex(p => p.id === id)
-        if (index !== -1) {
-          this.products[index] = response.data
-        }
-      } catch (error) {
-        console.error('Error updating product:', error)
-        throw error
-      }
-    },
-
-    async deleteProduct(id: number) {
-      try {
-        await axios.delete(`http://localhost:8000/api/v1/productlist/${id}/`)
-        this.products = this.products.filter(p => p.id !== id)
-      } catch (error) {
-        console.error('Error deleting product:', error)
-        throw error
-      }
+  const fetchProducts = async () => {
+    loading.value = true
+    error.value = null
+    try {
+      const response = await api.get('/productlist/')
+      products.value = response.data
+    } catch (e: any) {
+      error.value = e.response?.data?.detail || 'Ошибка при загрузке товаров'
+      console.error('Error fetching products:', e)
+      throw e
+    } finally {
+      loading.value = false
     }
+  }
+
+  const getProductById = (id: number) => {
+    return products.value.find(product => product.id === id)
+  }
+
+  const getProductsBySearch = computed(() => {
+    return (searchTerm: string) => {
+      const term = searchTerm.toLowerCase()
+      return products.value.filter(p => 
+        p.name.toLowerCase().includes(term) ||
+        p.description.toLowerCase().includes(term)
+      )
+    }
+  })
+
+  const addProduct = async (product: Omit<Product, 'id' | 'created_at' | 'updated_at'>) => {
+    loading.value = true
+    error.value = null
+    try {
+      const response = await api.post('/productlist/', product)
+      products.value.push(response.data)
+      return response.data
+    } catch (e: any) {
+      error.value = e.response?.data?.detail || 'Ошибка при добавлении товара'
+      throw e
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const updateProduct = async (id: number, product: Partial<Product>) => {
+    loading.value = true
+    error.value = null
+    try {
+      const response = await api.patch(`/productlist/${id}/`, product)
+      const index = products.value.findIndex(p => p.id === id)
+      if (index !== -1) {
+        products.value[index] = response.data
+      }
+      return response.data
+    } catch (e: any) {
+      error.value = e.response?.data?.detail || 'Ошибка при обновлении товара'
+      throw e
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const deleteProduct = async (id: number) => {
+    loading.value = true
+    error.value = null
+    try {
+      await api.delete(`/productlist/${id}/`)
+      products.value = products.value.filter(p => p.id !== id)
+    } catch (e: any) {
+      error.value = e.response?.data?.detail || 'Ошибка при удалении товара'
+      throw e
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return {
+    products,
+    loading,
+    error,
+    fetchProducts,
+    getProductById,
+    getProductsBySearch,
+    addProduct,
+    updateProduct,
+    deleteProduct
   }
 }) 

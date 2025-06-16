@@ -1,81 +1,90 @@
 <template>
-  <form @submit.prevent="handleSubmit" class="product-form">
-    <div class="form-group">
-      <label for="name">Название товара</label>
-      <input
-        id="name"
-        v-model="formData.name"
-        type="text"
-        required
-        class="form-input"
-      >
-    </div>
+  <v-form @submit.prevent="handleSubmit" class="product-form">
+    <v-card>
+      <v-card-title class="text-h5">
+        {{ isEditing ? 'Редактирование товара' : 'Добавление товара' }}
+      </v-card-title>
 
-    <div class="form-group">
-      <label for="description">Описание</label>
-      <textarea
-        id="description"
-        v-model="formData.description"
-        required
-        class="form-input"
-        rows="4"
-      ></textarea>
-    </div>
+      <v-card-text>
+        <v-text-field
+          v-model="formData.name"
+          label="Название товара"
+          required
+          variant="outlined"
+          density="comfortable"
+        ></v-text-field>
 
-    <div class="form-group">
-      <label for="price">Цена</label>
-      <input
-        id="price"
-        v-model.number="formData.price"
-        type="number"
-        required
-        min="0"
-        step="0.01"
-        class="form-input"
-      >
-    </div>
+        <v-textarea
+          v-model="formData.description"
+          label="Описание"
+          required
+          variant="outlined"
+          density="comfortable"
+          rows="4"
+          auto-grow
+        ></v-textarea>
 
-    <div class="form-group">
-      <label for="image">Изображение</label>
-      <input
-        id="image"
-        type="file"
-        accept="image/*"
-        @change="handleImageChange"
-        class="form-input"
-      >
-      <div v-if="imagePreview" class="image-preview">
-        <img :src="imagePreview" alt="Preview">
-      </div>
-    </div>
+        <v-text-field
+          v-model.number="formData.price"
+          label="Цена"
+          type="number"
+          required
+          min="0"
+          step="0.01"
+          variant="outlined"
+          density="comfortable"
+          prefix="₽"
+        ></v-text-field>
 
-    <div class="form-actions">
-      <button type="submit" class="submit-button">
-        {{ isEditing ? 'Сохранить изменения' : 'Добавить товар' }}
-      </button>
-      <button type="button" @click="$emit('cancel')" class="cancel-button">
-        Отмена
-      </button>
-    </div>
-  </form>
+        <v-file-input
+          accept="image/*"
+          label="Изображение"
+          variant="outlined"
+          density="comfortable"
+          prepend-icon="mdi-camera"
+          @change="handleImageUpload"
+          :show-size="1000"
+        ></v-file-input>
+
+        <v-img
+          v-if="imagePreview"
+          :src="imagePreview"
+          max-width="200"
+          class="mx-auto mt-4 rounded"
+          cover
+        ></v-img>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn
+          color="grey"
+          variant="text"
+          @click="$emit('cancel')"
+        >
+          Отмена
+        </v-btn>
+        <v-btn
+          color="primary"
+          type="submit"
+          :loading="loading"
+        >
+          {{ isEditing ? 'Сохранить изменения' : 'Добавить товар' }}
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-form>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 
 interface Product {
-  id: number
+  id?: number
   name: string
   description: string
   price: number
   imageUrl?: string
-}
-
-interface FormData {
-  name: string
-  description: string
-  price: number
-  image?: File
 }
 
 const props = defineProps<{
@@ -84,48 +93,46 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'submit', data: FormData): void
+  (e: 'submit', product: Product, imageFile?: File): void
   (e: 'cancel'): void
 }>()
 
-const formData = ref<FormData>({
+const formData = reactive<Product>({
   name: '',
   description: '',
-  price: 0
+  price: 0,
+  imageUrl: ''
 })
 
 const imagePreview = ref<string | null>(null)
+const imageFile = ref<File | null>(null)
+const loading = ref(false)
 
 onMounted(() => {
   if (props.product) {
-    formData.value = {
-      name: props.product.name,
-      description: props.product.description,
-      price: props.product.price
-    }
+    Object.assign(formData, props.product)
     if (props.product.imageUrl) {
       imagePreview.value = props.product.imageUrl
     }
   }
 })
 
-const handleImageChange = (event: Event) => {
-  const input = event.target as HTMLInputElement
-  if (input.files && input.files[0]) {
-    const file = input.files[0]
-    formData.value.image = file
-    
-    // Create preview
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      imagePreview.value = e.target?.result as string
-    }
-    reader.readAsDataURL(file)
+const handleImageUpload = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  if (target.files && target.files[0]) {
+    const file = target.files[0]
+    imageFile.value = file
+    imagePreview.value = URL.createObjectURL(file)
   }
 }
 
-const handleSubmit = () => {
-  emit('submit', formData.value)
+const handleSubmit = async () => {
+  loading.value = true
+  try {
+    await emit('submit', { ...formData }, imageFile.value || undefined)
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -133,75 +140,5 @@ const handleSubmit = () => {
 .product-form {
   max-width: 600px;
   margin: 0 auto;
-  padding: 20px;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 500;
-  color: #333;
-}
-
-.form-input {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-}
-
-textarea.form-input {
-  resize: vertical;
-  min-height: 100px;
-}
-
-.image-preview {
-  margin-top: 10px;
-  max-width: 200px;
-}
-
-.image-preview img {
-  width: 100%;
-  height: auto;
-  border-radius: 4px;
-}
-
-.form-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 24px;
-}
-
-.submit-button,
-.cancel-button {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.submit-button {
-  background-color: #2ecc71;
-  color: white;
-}
-
-.submit-button:hover {
-  background-color: #27ae60;
-}
-
-.cancel-button {
-  background-color: #e74c3c;
-  color: white;
-}
-
-.cancel-button:hover {
-  background-color: #c0392b;
 }
 </style> 

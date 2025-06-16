@@ -1,49 +1,94 @@
 <template>
   <div class="product-list">
-    <div class="filters">
-      <input
-        v-model="searchQuery"
-        type="text"
-        placeholder="Поиск товаров..."
-        class="search-input"
-        @input="handleSearch"
-      >
-      <div class="price-filter">
-        <input
-          v-model="minPrice"
-          type="number"
-          placeholder="Мин. цена"
-          class="price-input"
-          @input="handleFilter"
+    <v-row>
+      <v-col cols="12">
+        <v-card class="mb-4">
+          <v-card-text>
+            <v-row>
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="searchQuery"
+                  label="Поиск товаров"
+                  prepend-inner-icon="mdi-magnify"
+                  variant="outlined"
+                  density="comfortable"
+                  hide-details
+                  @update:model-value="handleSearch"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-row>
+                  <v-col cols="6">
+                    <v-text-field
+                      v-model="minPrice"
+                      label="Мин. цена"
+                      type="number"
+                      variant="outlined"
+                      density="comfortable"
+                      hide-details
+                      @update:model-value="handleFilter"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="6">
+                    <v-text-field
+                      v-model="maxPrice"
+                      label="Макс. цена"
+                      type="number"
+                      variant="outlined"
+                      density="comfortable"
+                      hide-details
+                      @update:model-value="handleFilter"
+                    ></v-text-field>
+                  </v-col>
+                </v-row>
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+
+    <v-row v-if="!Array.isArray(products)">
+      <v-col cols="12" class="text-center">
+        <v-progress-circular
+          indeterminate
+          color="primary"
+          size="64"
+        ></v-progress-circular>
+        <div class="text-h6 mt-4">Загрузка...</div>
+      </v-col>
+    </v-row>
+
+    <v-row v-else-if="filteredProducts.length === 0">
+      <v-col cols="12" class="text-center">
+        <v-icon
+          size="64"
+          color="grey"
+          class="mb-4"
         >
-        <input
-          v-model="maxPrice"
-          type="number"
-          placeholder="Макс. цена"
-          class="price-input"
-          @input="handleFilter"
-        >
-      </div>
-    </div>
+          mdi-package-variant-closed
+        </v-icon>
+        <div class="text-h6">Товары не найдены</div>
+      </v-col>
+    </v-row>
 
-    <div v-if="!Array.isArray(products)" class="loading">
-      Загрузка...
-    </div>
-
-    <div v-else-if="filteredProducts.length === 0" class="no-products">
-      Товары не найдены
-    </div>
-
-    <div v-else class="products-grid">
-      <ProductCard
+    <v-row v-else>
+      <v-col
         v-for="product in filteredProducts"
         :key="product.id"
-        :product="product"
-        :is-seller="isSeller"
-        @edit="handleEdit"
-        @add-to-cart="handleAddToCart"
-      />
-    </div>
+        cols="12"
+        sm="6"
+        md="4"
+        lg="3"
+      >
+        <ProductCard
+          :product="product"
+          :is-seller="isSeller"
+          @edit="handleEdit"
+          @add-to-cart="handleAddToCart"
+        />
+      </v-col>
+    </v-row>
   </div>
 </template>
 
@@ -115,65 +160,5 @@ const handleAddToCart = (product: Product) => {
 <style scoped>
 .product-list {
   padding: 20px;
-}
-
-.filters {
-  margin-bottom: 20px;
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.search-input {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-  min-width: 300px;
-}
-
-.price-filter {
-  display: flex;
-  gap: 8px;
-}
-
-.price-input {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-  width: 120px;
-}
-
-.products-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-}
-
-.loading,
-.no-products {
-  text-align: center;
-  padding: 40px;
-  color: #666;
-  font-size: 1.2rem;
-}
-
-@media (max-width: 768px) {
-  .filters {
-    flex-direction: column;
-  }
-  
-  .search-input {
-    min-width: 100%;
-  }
-  
-  .price-filter {
-    width: 100%;
-  }
-  
-  .price-input {
-    flex: 1;
-  }
 }
 </style> 
