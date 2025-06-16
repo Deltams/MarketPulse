@@ -39,7 +39,6 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = '__all__'
-        
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -72,3 +71,15 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'email', 'username', 'first_name', 'last_name', 'is_seller', 'is_buyer')
         read_only_fields = ('id', 'email', 'is_seller', 'is_buyer')
+
+
+class CartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cart
+        fields = '__all__'
+
+
+class CartItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CartItem
+        fields = '__all__'

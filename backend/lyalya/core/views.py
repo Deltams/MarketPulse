@@ -9,8 +9,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
-from .models import Brand, Category, Product
-from .serializers import CategorySerializer, RegisterSerializer, ProductSerializer, BrandSerializer, UserSerializer
+from .models import Brand, Category, Product, Cart, CartItem
+from .serializers import (
+    CategorySerializer, RegisterSerializer, ProductSerializer, BrandSerializer, UserSerializer,
+    CartSerializer,
+    CartItemSerializer
+)
 
 class RegisterView(APIView):
     def post(self, request):
@@ -211,3 +215,23 @@ class UserProfileView(APIView):
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
+
+
+class CartListCreateView(generics.ListCreateAPIView):
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
+
+
+class CartRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
+
+
+class CartItemListCreateView(generics.ListCreateAPIView):
+    queryset = CartItem.objects.all()
+    serializer_class = CartItemSerializer
+
+
+class CartItemRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = CartItem.objects.all()
+    serializer_class = CartItemSerializer

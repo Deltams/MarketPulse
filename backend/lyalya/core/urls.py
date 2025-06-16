@@ -29,4 +29,12 @@ urlpatterns = [
 
     path('api/v1/auth/register', views.RegisterView.as_view(), name='register'),
     path('api/v1/auth/user/', views.UserProfileView.as_view(), name='user-profile'),
+
+    path('api/v1/carts/', views.CartListCreateView.as_view()),
+    path('api/v1/carts/<int:pk>/',
+         views.CartItemRetrieveUpdateDestroyView.as_view()),
+
+    path('api/v1/cart_items/', views.CartItemListCreateView.as_view()),
+    path('api/v1/cart_items/<int:pk>/',
+         views.CartItemRetrieveUpdateDestroyView.as_view()),
 ]

@@ -103,6 +103,9 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return self.name
+
     def check_price(self):
         if self.price < 0:
             raise ValidationError("Цена не может быть отрицательной.")
@@ -146,12 +149,32 @@ class Cart(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         null=True,
-        blank=True
+        blank=True,
+        related_name='cart'
     )
+
+    class Meta:
+        verbose_name = "Корзина"
+        verbose_name_plural = "Корзины"
+
+    def __str__(self):
+        if self.user:
+            return f"Cart {self.user.email}"
 
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=1)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(
+        default=1,
+        validators=[MinValueValidator(1)]
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['cart', 'product'],
+                name='unique_product_in_cart'
+            )
+        ]
 

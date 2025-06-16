@@ -8,8 +8,8 @@ from .models import (
 
 
 admin.site.register(User)
-admin.site.register(SellerProfile)
-admin.site.register(BuyerProfile)
+# admin.site.register(SellerProfile)
+# admin.site.register(BuyerProfile)
 admin.site.register(Brand)
 admin.site.register(Category)
 admin.site.register(Product)
