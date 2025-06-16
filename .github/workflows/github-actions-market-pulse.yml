@@ -28,7 +28,7 @@ jobs:
         run: sudo docker system prune -f # -f пропуск вопроса [y/N] (можно -af тогда ВСЕ лишнее удалим)  
   test:
     needs: [build]
-    runs-on: self-hosted # ubuntu-latest, если на серверах GitHub; self-hosted, если свой сервер
+    runs-on: ubuntu-latest # ubuntu-latest, если на серверах GitHub; self-hosted, если свой сервер
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
