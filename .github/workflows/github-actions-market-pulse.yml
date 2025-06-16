@@ -4,7 +4,7 @@ on:
     branches: [main]
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -28,7 +28,7 @@ jobs:
         run: sudo docker system prune -f # -f пропуск вопроса [y/N] (можно -af тогда ВСЕ лишнее удалим)  
   test:
     needs: [build]
-    runs-on: ubuntu-latest # ubuntu-latest, если на серверах GitHub; self-hosted, если свой сервер 
+    runs-on: self-hosted # ubuntu-latest, если на серверах GitHub; self-hosted, если свой сервер 
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
