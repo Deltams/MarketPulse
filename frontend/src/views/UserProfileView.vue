@@ -60,10 +60,15 @@ const error = ref('');
 
 const fetchProfile = async () => {
   try {
-    const response = await api.get('/userprofilelist/');
-    profile.value = response.data;
+    const response = await api.get('/auth/user/');
+    profile.value = {
+      username: response.data.username,
+      email: response.data.email,
+      first_name: response.data.first_name || '',
+      last_name: response.data.last_name || ''
+    };
   } catch (err) {
-    error.value = 'Failed to load profile';
+    error.value = 'Не удалось загрузить профиль';
     console.error('Error fetching profile:', err);
   } finally {
     loading.value = false;
