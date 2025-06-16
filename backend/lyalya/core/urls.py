@@ -27,5 +27,5 @@ urlpatterns = [
     path('api/v1/brandlist/', views.BrandAPIView.as_view()),
     path('api/v1/brandlist/<int:pk>/', views.BrandDetailAPIView.as_view()),
 
-    path('api/v1/userprofilelist/', views.UserProfileAPIView.as_view()),
+    # path('api/v1/userprofilelist/', views.UserProfileAPIView.as_view()),
 ]

@@ -5,8 +5,8 @@ from django.core.exceptions import PermissionDenied
 from rest_framework import generics
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
-from .models import Brand, Category, Product, UserProfile
-from .serializers import CategorySerializer, ProductSerializer, BrandSerializer, UserProfileSerializer
+from .models import Brand, Category, Product
+from .serializers import CategorySerializer, ProductSerializer, BrandSerializer
 
 
 def index(request):
@@ -147,6 +147,6 @@ class BrandDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = BrandSerializer
 
 
-class UserProfileAPIView(generics.ListAPIView):
-    queryset = UserProfile.objects.all()
-    serializer_class = UserProfileSerializer
+# class UserProfileAPIView(generics.ListAPIView):
+#     queryset = UserProfile.objects.all()
+#     serializer_class = UserProfileSerializer
