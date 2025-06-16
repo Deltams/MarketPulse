@@ -4,6 +4,8 @@ from django.core.exceptions import PermissionDenied
 
 from rest_framework import generics
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from rest_framework import status
+from rest_framework.response import Response
 
 from .models import Brand, Category, Product
 from .serializers import CategorySerializer, ProductSerializer, BrandSerializer
@@ -123,6 +125,20 @@ class ProductDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return Product.objects.all()
+    
+    def check_seller_permission(self, product):
+        if not hasattr(self.request.user, 'userprofile'):
+            return False
+        return product.seller == self.request.user.userprofile
+    
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if not self.check_seller_permission(instance):
+            return Response(
+                {"detail": "У вас нет прав на редактирование этого товара"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return super().update(request, *args, **kwargs)
 
     def perform_update(self, serializer):
         # Проверяем, является ли пользователь продавцом этого товара
@@ -131,9 +147,11 @@ class ProductDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
         serializer.save()
 
     def perform_destroy(self, instance):
-        # Проверяем, является ли пользователь продавцом этого товара
-        if instance.seller != self.request.user.userprofile:
-            raise PermissionDenied("Вы не можете удалить этот товар")
+        if not self.check_seller_permission(instance):
+            return Response(
+                {"detail": "У вас нет прав на удаление этого товара"},
+                status=status.HTTP_403_FORBIDDEN
+            )
         instance.delete()
 
 
