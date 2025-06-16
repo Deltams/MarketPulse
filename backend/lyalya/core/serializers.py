@@ -44,8 +44,8 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def validate_image(self, value):
         if value:
-            if value.size > 5 * 1024 * 1024:  # 5MB
-                raise serializers.ValidationError("Размер изображения не может превышать 5MB")
+            # if value.size > 5 * 1024 * 1024:  # 5MB
+            #     raise serializers.ValidationError("Размер изображения не может превышать 5MB")
             if not value.content_type.startswith('image/'):
                 raise serializers.ValidationError("Файл должен быть изображением")
         return value
