@@ -56,5 +56,9 @@ jobs:
         run: sudo docker system prune -f # -f пропуск вопроса [y/N] (можно -af тогда ВСЕ лишнее удалим)
       - name: Building a new version
         run: sudo docker compose build
+      - name: Remove frontend
+        run: sudo docker service remove market_pulse_frontend
+      - name: Remove backend
+        run: sudo docker service remove market_pulse_backend
       - name: Deploy repository
         run: sudo docker stack deploy --compose-file docker-compose.yml market_pulse

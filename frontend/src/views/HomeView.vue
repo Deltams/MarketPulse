@@ -9,7 +9,7 @@
       <div class="overlay"></div>
       <div class="hero-content">
         <h1 class="text-h2 font-weight-bold mb-4 welcome-text">
-          Добро пожаловать в MarketPulse
+          Добро пожаловать в $MarketPulse$
         </h1>
         <p class="text-h5 mb-6 welcome-subtitle">
           Ваш надежный партнер в мире качественных товаров и услуг
