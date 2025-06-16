@@ -17,7 +17,7 @@ jobs:
       # - name: Creating a swarm docker
       #   run: sudo docker swarm init
       # - name: Start PostgreSQL
-      #   run: sudo docker compose -f docker-compose-build.yml up postgres -d
+      #   run: sudo docker compose -f docker-compose-build.yml up postgres -d 
       - name: Building a new version
         run: sudo docker compose -f docker-compose-build.yml build
       - name: Deploy repository
