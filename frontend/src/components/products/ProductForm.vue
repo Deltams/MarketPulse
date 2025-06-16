@@ -1,139 +1,91 @@
 <template>
-  <v-form @submit.prevent="handleSubmit" class="product-form">
-    <v-card>
-      <v-card-title class="text-h5">
-        {{ isEditing ? 'Редактирование товара' : 'Добавление товара' }}
-      </v-card-title>
+  <BaseForm
+    ref="form"
+    :loading="loading"
+    :submit-text="submitText"
+    @submit="handleSubmit"
+    @cancel="$emit('cancel')"
+  >
+    <BaseInput
+      v-model="formData.name"
+      label="Название товара"
+      :rules="[v => !!v || 'Обязательное поле']"
+      prepend-icon="mdi-tag"
+    />
 
-      <v-card-text>
-        <v-text-field
-          v-model="formData.name"
-          label="Название товара"
-          required
-          variant="outlined"
-          density="comfortable"
-        ></v-text-field>
+    <BaseInput
+      v-model="formData.description"
+      label="Описание"
+      type="textarea"
+      :rules="[v => !!v || 'Обязательное поле']"
+      prepend-icon="mdi-text"
+    />
 
-        <v-textarea
-          v-model="formData.description"
-          label="Описание"
-          required
-          variant="outlined"
-          density="comfortable"
-          rows="4"
-          auto-grow
-        ></v-textarea>
+    <BaseInput
+      v-model.number="formData.price"
+      label="Цена"
+      type="number"
+      :rules="[
+        v => !!v || 'Обязательное поле',
+        v => v > 0 || 'Цена должна быть больше 0'
+      ]"
+      prepend-icon="mdi-currency-rub"
+    />
 
-        <v-text-field
-          v-model.number="formData.price"
-          label="Цена"
-          type="number"
-          required
-          min="0"
-          step="0.01"
-          variant="outlined"
-          density="comfortable"
-          prefix="₽"
-        ></v-text-field>
-
-        <v-file-input
-          accept="image/*"
-          label="Изображение"
-          variant="outlined"
-          density="comfortable"
-          prepend-icon="mdi-camera"
-          @change="handleImageUpload"
-          :show-size="1000"
-        ></v-file-input>
-
-        <v-img
-          v-if="imagePreview"
-          :src="imagePreview"
-          max-width="200"
-          class="mx-auto mt-4 rounded"
-          cover
-        ></v-img>
-      </v-card-text>
-
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn
-          color="grey"
-          variant="text"
-          @click="$emit('cancel')"
-        >
-          Отмена
-        </v-btn>
-        <v-btn
-          color="primary"
-          type="submit"
-          :loading="loading"
-        >
-          {{ isEditing ? 'Сохранить изменения' : 'Добавить товар' }}
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-form>
+    <ImageUpload
+      v-model="formData.image"
+      label="Изображение товара"
+      :max-width="300"
+      :max-height="300"
+      :aspect-ratio="16/9"
+    />
+  </BaseForm>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, computed } from 'vue'
+import BaseForm from '../common/BaseForm.vue'
+import BaseInput from '../common/BaseInput.vue'
+import ImageUpload from '../common/ImageUpload.vue'
 
-interface Product {
-  id?: number
-  name: string
-  description: string
-  price: number
-  imageUrl?: string
-}
-
-const props = defineProps<{
-  product?: Product
-  isEditing?: boolean
-}>()
-
-const emit = defineEmits<{
-  (e: 'submit', product: Product, imageFile?: File): void
-  (e: 'cancel'): void
-}>()
-
-const formData = reactive<Product>({
-  name: '',
-  description: '',
-  price: 0,
-  imageUrl: ''
-})
-
-const imagePreview = ref<string | null>(null)
-const imageFile = ref<File | null>(null)
-const loading = ref(false)
-
-onMounted(() => {
-  if (props.product) {
-    Object.assign(formData, props.product)
-    if (props.product.imageUrl) {
-      imagePreview.value = props.product.imageUrl
-    }
+const props = defineProps({
+  product: {
+    type: Object,
+    default: () => ({
+      name: '',
+      description: '',
+      price: 0,
+      image: null
+    })
+  },
+  loading: {
+    type: Boolean,
+    default: false
   }
 })
 
-const handleImageUpload = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  if (target.files && target.files[0]) {
-    const file = target.files[0]
-    imageFile.value = file
-    imagePreview.value = URL.createObjectURL(file)
-  }
-}
+const emit = defineEmits(['submit', 'cancel'])
+
+const form = ref()
+const formData = ref({ ...props.product })
+
+const submitText = computed(() => props.product.id ? 'Сохранить' : 'Создать')
 
 const handleSubmit = async () => {
-  loading.value = true
-  try {
-    await emit('submit', { ...formData }, imageFile.value || undefined)
-  } finally {
-    loading.value = false
+  const { valid } = await form.value.validate()
+  if (valid) {
+    emit('submit', formData.value)
   }
 }
+
+const reset = () => {
+  form.value?.reset()
+  formData.value = { ...props.product }
+}
+
+defineExpose({
+  reset
+})
 </script>
 
 <style scoped>

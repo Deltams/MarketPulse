@@ -53,9 +53,10 @@ class Product(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True)
     description = models.TextField(blank=True, null=True)
-
+    image = models.ImageField(upload_to='products/', null=True, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)]) # физически в БД все еще можно записать отрицательную цену!!!
     is_active = models.BooleanField(default=True)
+    seller = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='products')
 
     def check_price(self):
         if self.price < 0:

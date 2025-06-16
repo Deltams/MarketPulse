@@ -1,71 +1,110 @@
 <template>
-  <div class="login">
-    <div class="login-container">
-      <h1>Вход в систему</h1>
-      <form @submit.prevent="handleLogin" class="login-form">
-        <div class="form-group">
-          <label for="username">Имя пользователя</label>
-          <input
-            type="text"
-            id="username"
-            v-model="username"
-            required
-            class="form-input"
-            :disabled="loading"
-          />
-        </div>
-        
-        <div class="form-group">
-          <label for="password">Пароль</label>
-          <input
-            type="password"
-            id="password"
-            v-model="password"
-            required
-            class="form-input"
-            :disabled="loading"
-          />
-        </div>
+  <v-container class="fill-height">
+    <v-row justify="center" align="center" class="fill-height">
+      <v-col cols="12" sm="8" md="6" lg="5" xl="4">
+        <v-card class="elevation-12 login-card mx-auto">
+          <v-card-title class="text-h5 text-center pt-6">
+            Вход в систему
+          </v-card-title>
 
-        <div v-if="authStore.error" class="error">
-          {{ authStore.error }}
-        </div>
-        
-        <button type="submit" class="submit-button" :disabled="loading">
-          {{ loading ? 'Вход...' : 'Войти' }}
-        </button>
-      </form>
-    </div>
-  </div>
+          <v-card-text>
+            <BaseForm
+              ref="form"
+              :loading="loading"
+              submit-text="Войти"
+              @submit="handleSubmit"
+              @cancel="$router.push('/register')"
+            >
+              <BaseInput
+                v-model="formData.email"
+                label="Email"
+                type="email"
+                :rules="[
+                  v => !!v || 'Обязательное поле',
+                  v => /.+@.+\..+/.test(v) || 'Некорректный email'
+                ]"
+                prepend-icon="mdi-email"
+              />
+
+              <BaseInput
+                v-model="formData.password"
+                label="Пароль"
+                type="password"
+                :rules="[v => !!v || 'Обязательное поле']"
+                prepend-icon="mdi-lock"
+              />
+            </BaseForm>
+          </v-card-text>
+
+          <v-card-text class="text-center">
+            <p class="text-body-2">
+              Нет аккаунта?
+              <router-link to="/register" class="text-decoration-none">
+                Зарегистрироваться
+              </router-link>
+            </p>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/authStore'
+import { ref } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
+import BaseForm from '../components/common/BaseForm.vue'
+import BaseInput from '../components/common/BaseInput.vue'
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 
-const username = ref('')
-const password = ref('')
+const form = ref()
+const loading = ref(false)
 
-const loading = computed(() => authStore.loading)
+const formData = ref({
+  email: '',
+  password: ''
+})
 
-const handleLogin = async () => {
+const handleSubmit = async () => {
+  const { valid } = await form.value.validate()
+  if (!valid) return
+
+  loading.value = true
   try {
-    await authStore.login({
-      username: username.value,
-      password: password.value
-    })
-    router.push('/')
-  } catch (error) {
-    console.error('Login error:', error)
+    await authStore.login(formData.value.email, formData.value.password)
+    const redirectPath = route.query.redirect as string || '/'
+    router.push(redirectPath)
+  } catch (error: any) {
+    console.error('Login failed:', error)
+    // Здесь можно добавить обработку ошибок
+  } finally {
+    loading.value = false
   }
 }
 </script>
 
 <style scoped>
+.login-card {
+  max-width: 480px;
+  width: 100%;
+  margin: 48px auto;
+  padding: 32px 24px 24px 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+
+@media (max-width: 600px) {
+  .login-card {
+    padding: 20px 8px 16px 8px;
+    margin: 24px auto;
+    max-width: 98vw;
+  }
+}
+
 .login {
   display: flex;
   justify-content: center;

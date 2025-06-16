@@ -5,77 +5,69 @@
     :hover="true"
   >
     <v-img
-      :src="product.imageUrl || '/placeholder.png'"
-      :alt="product.name"
-      height="200"
+      :src="product.image || '/placeholder.png'"
+      :aspect-ratio="16/9"
       cover
-      class="align-end"
+      class="product-image"
     >
-      <v-card-title class="text-white text-shadow">
-        {{ product.name }}
-      </v-card-title>
+      <template v-slot:placeholder>
+        <v-row class="fill-height ma-0" align="center" justify="center">
+          <v-progress-circular indeterminate color="primary"></v-progress-circular>
+        </v-row>
+      </template>
     </v-img>
 
+    <v-card-title class="text-truncate">{{ product.name }}</v-card-title>
+    
     <v-card-text>
-      <p class="text-body-2 text-medium-emphasis mb-4">
-        {{ product.description }}
-      </p>
-      <div class="text-h6 text-primary mb-4">
-        {{ formatPrice(product.price) }}
+      <div class="text-truncate mb-2">{{ product.description }}</div>
+      <div class="text-h6 font-weight-bold">
+        {{ formatPrice(product.price) }} ₽
       </div>
     </v-card-text>
 
     <v-card-actions>
-      <v-btn
-        block
+      <BaseButton
         color="primary"
         variant="elevated"
+        size="small"
         @click="$emit('add-to-cart', product)"
-        prepend-icon="mdi-cart-plus"
       >
         В корзину
-      </v-btn>
-      <v-btn
+      </BaseButton>
+
+      <BaseButton
         v-if="isSeller"
-        block
         color="secondary"
-        variant="outlined"
+        variant="text"
+        size="small"
         @click="$emit('edit', product)"
-        prepend-icon="mdi-pencil"
-        class="mt-2"
       >
         Редактировать
-      </v-btn>
+      </BaseButton>
     </v-card-actions>
   </v-card>
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue'
+import { computed } from 'vue'
+import BaseButton from '../common/BaseButton.vue'
 
-interface Product {
-  id: number
-  name: string
-  description: string
-  price: number
-  imageUrl?: string
-}
+const props = defineProps({
+  product: {
+    type: Object,
+    required: true
+  },
+  isSeller: {
+    type: Boolean,
+    default: false
+  }
+})
 
-const props = defineProps<{
-  product: Product
-  isSeller?: boolean
-}>()
-
-const emit = defineEmits<{
-  (e: 'add-to-cart', product: Product): void
-  (e: 'edit', product: Product): void
-}>()
+defineEmits(['add-to-cart', 'edit'])
 
 const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('ru-RU', {
-    style: 'currency',
-    currency: 'RUB'
-  }).format(price)
+  return new Intl.NumberFormat('ru-RU').format(price)
 }
 </script>
 
@@ -86,11 +78,34 @@ const formatPrice = (price: number) => {
   flex-direction: column;
 }
 
-.text-shadow {
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+.product-image {
+  position: relative;
+}
+
+.product-image::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(to top, rgba(0,0,0,0.3), transparent);
+  pointer-events: none;
+}
+
+.v-card-title {
+  font-size: 1.1rem;
+  line-height: 1.4;
+  padding: 12px 16px 4px;
+}
+
+.v-card-text {
+  padding: 0 16px 16px;
+  flex-grow: 1;
 }
 
 .v-card-actions {
-  margin-top: auto;
+  padding: 8px 16px 16px;
+  gap: 8px;
 }
 </style> 

@@ -1,7 +1,9 @@
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
+from django.core.exceptions import PermissionDenied
 
 from rest_framework import generics
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
 from .models import Brand, Category, Product, UserProfile
 from .serializers import CategorySerializer, ProductSerializer, BrandSerializer, UserProfileSerializer
@@ -75,15 +77,15 @@ class CategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CategorySerializer
 
 
-class ProductAPIView(generics.ListAPIView):
+class ProductAPIView(generics.ListCreateAPIView):
     serializer_class = ProductSerializer
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     def get_queryset(self):
         queryset = Product.objects.all()
         
-        # Get all category parameters
+        # Фильтрация по категориям
         category_params = {k: v for k, v in self.request.query_params.items() if k.startswith('category_')}
-        
         if category_params:
             from django.db.models import Q
             category_filters = Q()
@@ -93,16 +95,46 @@ class ProductAPIView(generics.ListAPIView):
                     category_filters |= Q(category_id=category_id)
                 except (ValueError, TypeError):
                     continue
-            
-            # Apply the filter
             queryset = queryset.filter(category_filters)
-            
+        
+        # Фильтрация по цене
+        min_price = self.request.query_params.get('min_price')
+        max_price = self.request.query_params.get('max_price')
+        if min_price:
+            queryset = queryset.filter(price__gte=min_price)
+        if max_price:
+            queryset = queryset.filter(price__lte=max_price)
+        
+        # Поиск по названию
+        search = self.request.query_params.get('search')
+        if search:
+            queryset = queryset.filter(name__icontains=search)
+        
         return queryset
+
+    def perform_create(self, serializer):
+        serializer.save(seller=self.request.user.userprofile)
 
 
 class ProductDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
+
+    def get_queryset(self):
+        return Product.objects.all()
+
+    def perform_update(self, serializer):
+        # Проверяем, является ли пользователь продавцом этого товара
+        if serializer.instance.seller != self.request.user.userprofile:
+            raise PermissionDenied("Вы не можете редактировать этот товар")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        # Проверяем, является ли пользователь продавцом этого товара
+        if instance.seller != self.request.user.userprofile:
+            raise PermissionDenied("Вы не можете удалить этот товар")
+        instance.delete()
 
 
 class BrandAPIView(generics.ListAPIView):
