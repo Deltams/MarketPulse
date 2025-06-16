@@ -97,7 +97,7 @@ class Product(models.Model):
     seller = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='services_offered',
+        related_name='products_offered',
         limit_choices_to={'is_seller': True}
     )
 
