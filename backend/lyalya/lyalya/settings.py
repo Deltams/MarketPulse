@@ -82,19 +82,19 @@ WSGI_APPLICATION = 'lyalya.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    # # # Для тестов и локального запуска 
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR_DB,
-    }
+    # # # # Для тестов и локального запуска 
     # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql',
-    #     'NAME': 'data_base_market_pulse',
-    #     'USER': 'postgres',
-    #     'PASSWORD': 'qwer4617',
-    #     'HOST': 'postgres',
-    #     'PORT': '5432',
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR_DB,
     # }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'data_base_market_pulse',
+        'USER': 'postgres',
+        'PASSWORD': 'qwer4617',
+        'HOST': 'postgres',
+        'PORT': '5432',
+    }
 }
 
 for db_name in DATABASES:
@@ -151,10 +151,12 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
     "http://0.0.0.0:5173",
     "http://frontend:5173",
+    "http://89.169.179.160:5173",
     "http://localhost:4488",  # Vite dev server
     "http://127.0.0.1:4488",
     "http://0.0.0.0:4488",
     "http://frontend:4488",
+    "http://89.169.179.160:4488",
 ]
 CORS_ALLOWED_METHODS = [
     'DELETE',
