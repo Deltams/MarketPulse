@@ -15,7 +15,7 @@ export default defineConfig({
     host: '0.0.0.0',
     proxy: {
       '/api': {
-        target: 'http://backend:8000',
+        target: 'http://89.169.179.160:8000',
         changeOrigin: true,
       }
     }
