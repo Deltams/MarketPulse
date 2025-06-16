@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://backend:8000/api/v1',
+  baseURL: 'http://89.169.179.160:8000/api/v1',
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -38,7 +38,7 @@ api.interceptors.response.use(
         // Try to refresh the token
         const refreshToken = localStorage.getItem('refreshToken');
         if (refreshToken) {
-          const response = await axios.post('http://backend:8000/api/v1/auth/token/refresh/', {
+          const response = await axios.post('http://89.169.179.160:8000/api/v1/auth/token/refresh/', {
             refresh: refreshToken
           });
 
