@@ -14,8 +14,8 @@ jobs:
           version: latest
       - name: Check Docker Compose Syntax
         run: sudo docker compose config
-      - name: Creating a swarm docker
-        run: sudo docker swarm init
+      # - name: Creating a swarm docker
+      #   run: sudo docker swarm init
       - name: Start PostgreSQL
         run: sudo docker compose up postgres -d
       - name: Building a new version
