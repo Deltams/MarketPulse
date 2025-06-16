@@ -6,10 +6,20 @@ from rest_framework import generics
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 
 from .models import Brand, Category, Product
-from .serializers import CategorySerializer, ProductSerializer, BrandSerializer
+from .serializers import CategorySerializer, RegisterSerializer, ProductSerializer, BrandSerializer, UserSerializer
 
+class RegisterView(APIView):
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            # Можно сразу выдать токен, если нужно
+            return Response({'user': RegisterSerializer(user).data}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 def index(request):
     data = {'title': 'Главная страница'}
@@ -165,6 +175,9 @@ class BrandDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = BrandSerializer
 
 
-# class UserProfileAPIView(generics.ListAPIView):
-#     queryset = UserProfile.objects.all()
-#     serializer_class = UserProfileSerializer
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)

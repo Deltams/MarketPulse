@@ -40,7 +40,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await axios.post('/api/auth/login', { email, password });
+      const response = await axios.post('/api/v1/auth/login', { email, password });
       const { user, token } = response.data;
       setAuth(user, token);
       return user;
@@ -50,9 +50,9 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
-  const register = async (userData: { email: string; password: string; name: string; role: 'buyer' | 'seller' }) => {
+  const register = async (userData: { email: string; password: string; username: string; is_seller: boolean; is_buyer: boolean }) => {
     try {
-      const response = await axios.post('/api/auth/register', userData);
+      const response = await axios.post('/api/v1/auth/register', userData);
       const { user, token } = response.data;
       setAuth(user, token);
       return user;
@@ -70,7 +70,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (!state.value.token) return null;
 
     try {
-      const response = await axios.get('/api/auth/me');
+      const response = await axios.get('/api/v1/auth/me');
       state.value.user = response.data;
       return response.data;
     } catch (error) {

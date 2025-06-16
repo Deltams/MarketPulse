@@ -107,9 +107,14 @@ const resetValidation = () => {
   form.value?.resetValidation()
 }
 
+const validate = async () => {
+  return await form.value?.validate();
+}
+
 defineExpose({
   reset,
-  resetValidation
+  resetValidation,
+  validate
 })
 </script>
 
@@ -117,7 +122,7 @@ defineExpose({
 .form-actions {
   display: flex;
   gap: 1rem;
-  justify-content: flex-end;
+  justify-content: center;
   margin-top: 1.5rem;
 }
 </style> 

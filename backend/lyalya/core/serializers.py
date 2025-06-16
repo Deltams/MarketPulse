@@ -11,6 +11,23 @@ from .models import (
 #         model = UserProfile
 #         fields = '__all__'
 
+class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ('id', 'email', 'username', 'password', 'is_seller', 'is_buyer')
+
+    def create(self, validated_data):
+        user = User(
+            email=validated_data['email'],
+            username=validated_data['username'],
+            is_seller=validated_data.get('is_seller', False),
+            is_buyer=validated_data.get('is_buyer', True),
+        )
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
 
 class BrandSerializer(serializers.ModelSerializer):
     class Meta:
@@ -49,3 +66,9 @@ class ProductSerializer(serializers.ModelSerializer):
             if not value.content_type.startswith('image/'):
                 raise serializers.ValidationError("Файл должен быть изображением")
         return value
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'email', 'username', 'first_name', 'last_name', 'is_seller', 'is_buyer')
+        read_only_fields = ('id', 'email', 'is_seller', 'is_buyer')

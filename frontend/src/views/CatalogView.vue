@@ -403,61 +403,47 @@ onMounted(() => {
 
 <style scoped>
 .catalog {
-  min-height: 100%;
-  background-color: #f5f5f5;
-  width: 100vw;
-  margin: 0;
-  padding: 0;
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
+  min-height: 100vh;
 }
 
 .catalog-header {
-  background-color: white;
-  padding: 24px 0;
-  margin-bottom: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  width: 100%;
+  padding: 32px 0;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
 }
 
 .header-content {
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 24px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 .catalog-title {
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 16px;
-  color: #1a1a1a;
-  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+  background: linear-gradient(45deg, #1867C0, #5CBBF6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .catalog-controls {
   display: flex;
   gap: 16px;
   align-items: center;
-  justify-content: center;
-  width: 100%;
-  max-width: 800px;
 }
 
 .search-field {
   max-width: 400px;
-  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
 }
 
 .catalog-content {
-  width: 100%;
-  padding: 0;
-  margin: 0;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 32px 24px;
 }
 
 .products-container {
@@ -470,13 +456,9 @@ onMounted(() => {
 
 .products-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 24px;
-  margin: 0 auto;
-  padding: 0 24px;
-  width: 100%;
-  min-height: 600px;
-  max-width: 1400px;
+  margin-top: 32px;
 }
 
 .product-card {
@@ -484,8 +466,8 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   transition: transform 0.2s ease;
-  width: 100%;
-  min-height: 400px;
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(10px);
 }
 
 .product-card:hover {
