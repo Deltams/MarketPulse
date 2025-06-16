@@ -46,11 +46,11 @@ class CategoryViewTest(TestCase):
 
 
 # !!!!!!!! Надо ввести статус код 404 для несуществующего id
-    # def test_category_by_ivalid_id_view(self):
+    # def test_category_by_non_existent_id_view(self):
     #     """Тест представления для url category/<int:cat_id>/ с несуществующим id """
 
-    #     invalid_id = 99999
-    #     url = f'/category/{invalid_id}/'
+    #     non_existent_id = 99999
+    #     url = f'/category/{non_existent_id}/'
     #     response = self.client.get(url)
 
     #     self.assertEqual(response.status_code, 404)
@@ -68,11 +68,11 @@ class CategoryViewTest(TestCase):
         self.assertEqual(response.context['category'], self.main_category)
 
 
-    def test_category_by_ivalid_slug_view(self):
+    def test_category_by_non_existent_slug_view(self):
         """Тест представления для url category/<slug:cat_slug>/ с несуществующим slug """
 
-        invalid_slug = 'new-category'
-        url = f'/category/{invalid_slug}/'
+        non_existent_slug = 'new-category'
+        url = f'/category/{non_existent_slug}/'
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 404)
@@ -102,11 +102,11 @@ class CategoryViewTest(TestCase):
         self.assertEqual(response.context['category'], self.main_category)
 
 
-    def test_category_detail_by_invalid_id_view(self):
+    def test_category_detail_by_non_existent_id_view(self):
         """Тест представления для url categories/<int:pk> с несуществующим id"""
         
-        invalid_id = 99999
-        url = f'/categories/{invalid_id}/'
+        non_existent_id = 99999
+        url = f'/categories/{non_existent_id}/'
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 404)

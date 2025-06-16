@@ -48,11 +48,11 @@ class BrandViewTest(TestCase):
         self.assertEqual(response.context['brand'], self.first_brand)
 
 
-    def test_brand_detail_by_invalid_id_view(self):
+    def test_brand_detail_by_non_existent_id_view(self):
         """Тест представления для url brands/<int:pk>/ с несуществующим id"""
         
-        invalid_id = 99999
-        url = f'/brands/{invalid_id}/'
+        non_existent_id = 99999
+        url = f'/brands/{non_existent_id}/'
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 404)

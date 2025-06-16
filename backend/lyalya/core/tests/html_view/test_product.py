@@ -49,11 +49,11 @@ class ProductViewTest(TestCase):
         self.assertEqual(response.context['product'], self.first_product)
 
 
-    def test_product_detail_by_invalid_id_view(self):
+    def test_product_detail_by_non_existent_id_view(self):
         """Тест представления для url products/<int:product_id> с несуществующим id"""
         
-        invalid_id = 99999
-        url = f'/products/{invalid_id}/'
+        non_existent_id = 99999
+        url = f'/products/{non_existent_id}/'
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 404)

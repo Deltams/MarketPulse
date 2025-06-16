@@ -41,11 +41,11 @@ class BrandAPITest(APITestCase):
         self.assertEqual(response.data['name'], 'First Brand')
 
     
-    def test_get_brand_detail_by_invalid_id(self):
+    def test_get_brand_detail_by_non_existent_id(self):
         """Тест для url GET api/v1/brandlist/<int:pk>/ с несуществующим id"""
 
-        invalid_id = 99999
-        url = f'/api/v1/brandlist/<int:pk>/{invalid_id}/'
+        non_existent_id = 99999
+        url = f'/api/v1/brandlist/<int:pk>/{non_existent_id}/'
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 404)

@@ -1,8 +1,14 @@
 from model_bakery.recipe import Recipe, foreign_key, seq
 from django.contrib.auth.models import User
 from ..models import UserProfile, Brand, Category, Product, Cart, CartItem
+from django.core.files.images import ImageFile
+import os
 
 
+TEST_IMAGE_PATH = os.path.join(os.path.dirname(__file__), 'test_images', 'normal_test.jpg')
+
+def get_test_image():
+    return ImageFile(open(TEST_IMAGE_PATH, 'rb'), name='normal_test.jpg')
 
 
 """Создание пользователя"""
@@ -65,8 +71,10 @@ full_product_recipe = Recipe(
     brand=foreign_key(full_brand_recipe),
     category=foreign_key(full_category_recipe),
     description=seq('Product description '),
+    image=get_test_image(),
     price=100.00,
-    is_active=True
+    is_active=True,
+    seller = foreign_key(user_profile_recipe)
 )
 
 

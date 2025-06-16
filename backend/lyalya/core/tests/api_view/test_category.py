@@ -76,11 +76,11 @@ class CategoryAPITest(APITestCase):
         self.assertEqual(response.data['name'], 'Main Category')
 
     
-    def test_get_category_detail_by_invalid_id(self):
+    def test_get_category_detail_by_non_existent_id(self):
         """Тест для url GET /api/v1/categories/<pk>/ с несуществующим id"""
 
-        invalid_id = 99999
-        url = f'/api/v1/categories/{invalid_id}/'
+        non_existent_id = 99999
+        url = f'/api/v1/categories/{non_existent_id}/'
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 404)
