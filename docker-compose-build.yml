@@ -1,0 +1,245 @@
+version: '3.8'
+
+services:
+
+#------------------------------------
+
+  postgres:
+    image: postgres
+    container_name: my-postgres-2025
+    networks:
+      - test_network
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: qwer4617
+    # ports:
+    #   - 4030:5432
+    volumes:
+      - ./backend/app/config/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - my-pg-volume:/var/lib/postgresql/data
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        order: stop-first
+        failure_action: rollback
+        delay: 5s
+      rollback_config:
+        parallelism: 0
+        order: stop-first
+      restart_policy:
+        condition: on-failure
+        delay: 2s
+        max_attempts: 6
+        window: 20s
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 20s
+      timeout: 10s
+      retries: 4
+      start_period: 20s
+
+#------------------------------------
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin-2025
+    networks:
+      - test_network
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@pgadmin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_SERVER_JSON_FILE: /var/lib/pgadmin/servers.json
+      PGADMIN_LISTEN_PORT: 80
+    # ports:
+    #   - 4080:80
+    volumes:
+      - ./backend/scripts/pg-admin-scripts/servers.json:/var/lib/pgadmin/servers.json
+      - my-pg-admin:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        order: start-first
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 0
+        order: stop-first
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 20s
+
+#------------------------------------
+
+  backend:
+    build: ./backend/lyalya
+    image: backend-deploy
+    container_name: backend-deploy
+    networks:
+      - test_network 
+    # ports:
+    #   - 8000:8000
+    depends_on:
+      - postgres
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        order: start-first
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 0
+        order: stop-first
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 20s
+
+#------------------------------------
+
+  frontend:
+    build: ./frontend
+    image: frontend-deploy
+    container_name: frontend-deploy
+    networks:
+      - test_network 
+    # ports:
+    #   - 4488:4488
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        order: start-first
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 0
+        order: stop-first
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 20s
+
+#------------------------------------
+
+  grafana:
+    image: grafana/grafana-oss
+    container_name: grafana-2025
+    networks:
+      - test_network
+    environment:
+      GF_PATHS_PROVISIONING: '/etc/grafana/provisioning/'
+    # ports:
+    #   - "3000:3000"
+    volumes:
+      - ./grafana/dashboards/:/etc/grafana/provisioning/dashboards
+      - ./grafana/datasources/:/etc/grafana/provisioning/datasources
+      - grafana-storage:/var/lib/grafana
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        order: start-first
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 0
+        order: stop-first
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 20s
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 20s
+      timeout: 10s
+      retries: 4
+      start_period: 30s
+
+#------------------------------------
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus-2025
+    networks:
+      - test_network
+    # ports: # Открыть/закрыть для внешнего доступа
+    #   - "9090:9090"
+    volumes:
+      - ./backend/scripts/prometheus-scripts/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        order: start-first
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 0
+        order: stop-first
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 20s
+
+#------------------------------------
+  node-exporter:
+    image: prom/node-exporter
+    container_name: exporter-2025
+    networks:
+      - test_network
+    # ports: # Открыть/закрыть для внешнего доступа
+    #   - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude'
+      - '^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)'
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        order: start-first
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 0
+        order: stop-first
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 20s
+
+#------------------------------------ 
+
+networks:
+  test_network:
+    driver: overlay
+    attachable: true
+    external: false
+
+volumes:
+  my-pg-volume: {}
+  my-pg-admin: {}
+  backend-deploy:
+  frontend-deploy:
+  prometheus-data: {}
+  grafana-storage: {}
