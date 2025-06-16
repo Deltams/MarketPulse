@@ -1,11 +1,15 @@
 from rest_framework import serializers
-from .models import UserProfile, Brand, Category, Product, Cart, CartItem
+from .models import (
+    User,
+    SellerProfile,
+    BuyerProfile,
+    Brand, Category, Product, Cart, CartItem)
 
 
-class UserProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserProfile
-        fields = '__all__'
+# class UserProfileSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = UserProfile
+#         fields = '__all__'
 
 
 class BrandSerializer(serializers.ModelSerializer):
