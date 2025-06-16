@@ -137,9 +137,7 @@ class ProductDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
         return Product.objects.all()
     
     def check_seller_permission(self, product):
-        if not hasattr(self.request.user, 'userprofile'):
-            return False
-        return product.seller == self.request.user.userprofile
+        return product.seller == self.request.user
     
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -151,18 +149,19 @@ class ProductDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
         return super().update(request, *args, **kwargs)
 
     def perform_update(self, serializer):
-        # Проверяем, является ли пользователь продавцом этого товара
-        if serializer.instance.seller != self.request.user.userprofile:
+        if serializer.instance.seller != self.request.user:
             raise PermissionDenied("Вы не можете редактировать этот товар")
         serializer.save()
 
-    def perform_destroy(self, instance):
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
         if not self.check_seller_permission(instance):
             return Response(
                 {"detail": "У вас нет прав на удаление этого товара"},
                 status=status.HTTP_403_FORBIDDEN
             )
-        instance.delete()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class BrandAPIView(generics.ListAPIView):
@@ -173,6 +172,37 @@ class BrandAPIView(generics.ListAPIView):
 class BrandDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Brand.objects.all()
     serializer_class = BrandSerializer
+
+    def get_permissions(self):
+        if self.request.method in ['GET']:
+            return []
+        return [IsAuthenticated()]
+    
+    def check_owner_permission(self, brand):
+        return brand.owner == self.request.user
+    
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if not self.check_owner_permission(instance):
+            return Response(
+                {"detail": "У вас нет прав на редактирование этого бренда"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return super().update(request, *args, **kwargs)
+
+    def perform_update(self, serializer):
+        # Проверяем, является ли пользователь владельцем этого бренда
+        if serializer.instance.owner != self.request.user:
+            raise PermissionDenied("Вы не можете редактировать этот бренд")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        if not self.check_owner_permission(instance):
+            return Response(
+                {"detail": "У вас нет прав на удаление этого бренда"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        instance.delete()
 
 
 class UserProfileView(APIView):

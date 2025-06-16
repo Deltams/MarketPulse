@@ -1,6 +1,6 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
-from ..Bakery import full_product_recipe, minimal_brand_recipe, minimal_category_recipe, full_category_recipe,user_profile_recipe, user_recipe
+from ..Bakery import full_product_recipe, minimal_brand_recipe, minimal_category_recipe, full_category_recipe, user_recipe
 
 
 class ProductIntegrationTest(APITestCase):
@@ -10,46 +10,42 @@ class ProductIntegrationTest(APITestCase):
     def setUpTestData(cls):
         """Создание тестовых данных"""
 
-        cls.user1 = user_recipe.make(username = 'seller1')
-        cls.user2 = user_recipe.make(username = 'seller2')
-        cls.user3 = user_recipe.make(username = 'random_user')
-
-        cls.seller1 = user_profile_recipe.make(user = cls.user1)
-        cls.seller2 = user_profile_recipe.make(user = cls.user2)
-        cls.random_user = user_profile_recipe.make(user = cls.user3)
+        cls.user1 = user_recipe.make(username='seller1', is_seller=True)
+        cls.user2 = user_recipe.make(username='seller2', is_seller=True)
+        cls.user3 = user_recipe.make(username='random_user', is_seller=False)
 
         cls.brand = minimal_brand_recipe.make(
-            name = 'Test Brand',
-            slug = 'test-brand'
+            name='Test Brand',
+            slug='test-brand'
         )
 
         cls.main_category = minimal_category_recipe.make(
-            name = 'Main Category',
-            slug = 'main-category'
+            name='Main Category',
+            slug='main-category'
         )
 
         cls.child_category = full_category_recipe.make(
-            name = 'Child Category',
-            slug = 'child-category',
-            parent = cls.main_category
+            name='Child Category',
+            slug='child-category',
+            parent=cls.main_category
         )
 
         cls.first_product = full_product_recipe.make(
             name='First Product',
             slug='first-product',
             price=100.00,
-            category = cls.main_category,
-            brand  = cls.brand,
-            seller = cls.seller1
+            category=cls.main_category,
+            brand=cls.brand,
+            seller=cls.user1
         )
         
         cls.second_product = full_product_recipe.make(
             name='Second Product',
             slug='second-product',
             price=10.00,
-            category = cls.child_category,
-            brand = None,
-            seller = cls.seller2
+            category=cls.child_category,
+            brand=None,
+            seller=cls.user2
         )
 
 
@@ -212,7 +208,7 @@ class ProductIntegrationTest(APITestCase):
         self.assertEqual(response.status_code, 204)
 
 
-    def test_delete_product_by_seller(self):
+    def test_delete_product_by_non_seller(self):
         """Тест DELETE для НЕ продовца товара url api/v1/productlist/<int:pk>/"""
 
         self.client.force_authenticate(user=self.user3)

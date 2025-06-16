@@ -1,8 +1,8 @@
 from django.test import TestCase
 from django.db import IntegrityError
 from django.contrib.auth.models import User
-from ...models import Cart, Product, CartItem, UserProfile
-from ..Bakery import user_profile_recipe, cart_recipe, minimal_product_recipe, cart_item_recipe
+from ...models import Cart, Product, CartItem, User
+from ..Bakery import user_recipe, cart_recipe, minimal_product_recipe, cart_item_recipe
 
 class CartItemModelTest(TestCase):
 
@@ -11,9 +11,9 @@ class CartItemModelTest(TestCase):
     def setUpTestData(cls):
         """Создание тестовых данных"""
 
-        cls.user_profile = user_profile_recipe.make()
+        cls.user = user_recipe.make()
 
-        cls.cart = cart_recipe.make(user = cls.user_profile)
+        cls.cart = cart_recipe.make(user=cls.user)
 
         cls.product = minimal_product_recipe.make()
 

@@ -1,8 +1,8 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
-from ...models import Category, Brand, Product
-from ..Bakery import minimal_brand_recipe, full_product_recipe, minimal_category_recipe, minimal_product_recipe, user_recipe, user_profile_recipe
+from ...models import Category, Brand, Product, User
+from ..Bakery import minimal_brand_recipe, full_product_recipe, minimal_category_recipe, minimal_product_recipe, user_recipe
 
 class ProductModelTest(TestCase):
 
@@ -11,23 +11,21 @@ class ProductModelTest(TestCase):
     def setUpTestData(cls):
         """Создание тестовых данных"""
 
-        cls.user = user_recipe.make(username=('Seller'))
-
-        cls.seller = user_profile_recipe.make(user = cls.user)
+        cls.user = user_recipe.make(username='Seller')
 
         cls.brand = minimal_brand_recipe.make()
 
         cls.category = minimal_category_recipe.make()
 
         cls.product = full_product_recipe.make(
-            brand = cls.brand,
-            category = cls.category,
-            name = 'Test Product',
-            slug = 'test-product',
-            description = 'test description',
-            price = 100.99,
-            is_active = False,
-            seller = cls.seller
+            brand=cls.brand,
+            category=cls.category,
+            name='Test Product',
+            slug='test-product',
+            description='test description',
+            price=100.99,
+            is_active=False,
+            seller=cls.user
         )
 
 
@@ -41,7 +39,7 @@ class ProductModelTest(TestCase):
         self.assertEqual(self.product.description, 'test description')
         self.assertEqual(self.product.price, 100.99)
         self.assertEqual(self.product.is_active, False)
-        self.assertEqual(self.product.seller, self.seller)
+        self.assertEqual(self.product.seller, self.user)
         # self.assertEqual(self.image)
 
 
@@ -92,7 +90,7 @@ class ProductModelTest(TestCase):
 
         with self.assertRaises(IntegrityError):
             minimal_product_recipe.make(
-                slug = "test-product"
+                slug="test-product"
             )
 
 
@@ -131,7 +129,7 @@ class ProductModelTest(TestCase):
         """Тест максимальной цены"""
 
         product = minimal_product_recipe.make(
-            price = 9999999.99
+            price=9999999.99
         )
         self.assertEqual(product.price, 9999999.99)
 
@@ -141,5 +139,5 @@ class ProductModelTest(TestCase):
 
         with self.assertRaises(ValidationError):
             minimal_product_recipe.make(
-                price = -10.00
+                price=-10.00
             )    

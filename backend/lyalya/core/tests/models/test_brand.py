@@ -2,8 +2,8 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
-from ...models import UserProfile, Brand
-from ..Bakery import user_profile_recipe, full_brand_recipe, minimal_brand_recipe
+from ...models import User, Brand
+from ..Bakery import user_recipe, full_brand_recipe, minimal_brand_recipe
 
 
 class BrandModelTest(TestCase):
@@ -13,10 +13,10 @@ class BrandModelTest(TestCase):
     def setUpTestData(cls):
         """Создание тестовых данных"""
 
-        cls.user_profile = user_profile_recipe.make()
+        cls.user = user_recipe.make()
         
         cls.brand = full_brand_recipe.make(
-            owner=cls.user_profile,
+            owner=cls.user,
             name='Test Brand',
             slug='test-brand',
             description='Test description',
@@ -31,28 +31,26 @@ class BrandModelTest(TestCase):
         self.assertEqual(self.brand.slug, 'test-brand')
         self.assertEqual(self.brand.description, 'Test description')
         self.assertTrue(self.brand.is_verified)
-        self.assertEqual(self.brand.owner, self.user_profile)
+        self.assertEqual(self.brand.owner, self.user)
 
 
-    def test_one_to_one_relation_owner(self):
-        """Тест связи один-к-одному с владельцем"""
+    def test_many_to_one_relation_owner(self):
+        """Тест связи многие-к-одному с владельцем"""
 
         owner = self.brand._meta.get_field('owner')
-        self.assertEqual(owner.remote_field.model, UserProfile)
+        self.assertEqual(owner.remote_field.model, User)
         self.assertEqual(owner.remote_field.on_delete.__name__, 'CASCADE')
-        self.assertTrue(owner.null)
-        self.assertTrue(owner.blank)
+        self.assertFalse(owner.null)
+        self.assertFalse(owner.blank)
 
-        with self.assertRaises(IntegrityError):
-            try:
-                with transaction.atomic():
-                    full_brand_recipe.make(
-                        owner = self.user_profile
-                    )
-            except IntegrityError:
-                raise
-        
-        self.assertEqual(Brand.objects.count(), 1)
+        # Test that a user can own multiple brands
+        second_brand = full_brand_recipe.make(
+            owner=self.user,
+            name='Second Brand',
+            slug='second-brand'
+        )
+        self.assertEqual(Brand.objects.filter(owner=self.user).count(), 2)
+        self.assertEqual(second_brand.owner, self.user)
 
 
     def test_str_representation(self):

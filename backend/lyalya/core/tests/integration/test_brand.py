@@ -1,6 +1,6 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
-from ..Bakery import full_product_recipe, full_brand_recipe, user_recipe, user_profile_recipe
+from ..Bakery import full_product_recipe, full_brand_recipe, user_recipe
 from ...models import Brand
 
 class BrandIntegrationTest(APITestCase):
@@ -10,32 +10,30 @@ class BrandIntegrationTest(APITestCase):
     def setUpTestData(cls):
         """Создание тестовых данных"""
 
-        cls.user = user_recipe.make(username = 'test-owner')
-        cls.user_profile = user_profile_recipe.make(user = cls.user)
-
+        cls.user = user_recipe.make(username='test-owner', is_seller=True)
 
         cls.first_brand = full_brand_recipe.make(
-            name = 'First Brand',
-            slug = 'first-brand',
-            owner = cls.user_profile,
-            is_verified = True
+            name='First Brand',
+            slug='first-brand',
+            owner=cls.user,
+            is_verified=True
         )
 
         cls.second_brand = full_brand_recipe.make(
-            name = 'Second Brand',
-            slug = 'second-brand'
+            name='Second Brand',
+            slug='second-brand'
         )
 
         cls.first_product = full_product_recipe.make(
             name='First Product',
             slug='first-product',
-            brand  = cls.first_brand
+            brand=cls.first_brand
         )
         
         cls.second_product = full_product_recipe.make(
             name='Second Product',
             slug='second-product',
-            brand = None
+            brand=None
         )
 
 

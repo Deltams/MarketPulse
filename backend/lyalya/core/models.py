@@ -100,6 +100,8 @@ class Product(models.Model):
         related_name='products_offered',
         limit_choices_to={'is_seller': True}
     )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def check_price(self):
         if self.price < 0:

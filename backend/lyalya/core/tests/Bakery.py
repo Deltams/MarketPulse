@@ -1,6 +1,6 @@
 from model_bakery.recipe import Recipe, foreign_key, seq
 from django.contrib.auth.models import User
-from ..models import UserProfile, Brand, Category, Product, Cart, CartItem
+from ..models import User, SellerProfile, BuyerProfile, Brand, Category, Product, Cart, CartItem
 from django.core.files.images import ImageFile
 import os
 
@@ -16,13 +16,26 @@ user_recipe = Recipe(
     User,
     username=seq('user'),
     email=seq('user', suffix='@gmail.com'),
-    password =seq('password')
+    password=seq('password'),
+    is_seller=True,
+    is_buyer=True
 )
 
 
-"""Создание профиля пользователя"""
-user_profile_recipe = Recipe(
-    UserProfile,
+"""Создание профиля продавца"""
+seller_profile_recipe = Recipe(
+    SellerProfile,
+    user=foreign_key(user_recipe),
+    business_name=seq('Test Business '),
+    slug=seq('test-business-'),
+    description=seq('Test description '),
+    is_verified=True
+)
+
+
+"""Создание профиля покупателя"""
+buyer_profile_recipe = Recipe(
+    BuyerProfile,
     user=foreign_key(user_recipe)
 )
 
@@ -32,7 +45,7 @@ full_brand_recipe = Recipe(
     Brand,
     name=seq('Test Brand '),
     slug=seq('test-brand-'),
-    owner=foreign_key(user_profile_recipe),
+    owner=foreign_key(user_recipe),
     description=seq('Description '),
     is_verified=True
 )
@@ -74,7 +87,7 @@ full_product_recipe = Recipe(
     image=get_test_image(),
     price=100.00,
     is_active=True,
-    seller = foreign_key(user_profile_recipe)
+    seller=foreign_key(user_recipe)
 )
 
 
@@ -90,7 +103,7 @@ minimal_product_recipe = Recipe(
 """Создание корзины пользователя"""
 cart_recipe = Recipe(
     Cart,
-    user=foreign_key(user_profile_recipe)
+    user=foreign_key(user_recipe)
 )
 
 
