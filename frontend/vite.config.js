@@ -11,12 +11,12 @@ export default defineConfig({
     },
   },
   server: {
+    host: '0.0.0.0',
     port: 4488,
-    host: '89.169.179.160',
     proxy: {
       '/api': {
-        target: 'http://89.169.179.160:8000',
-        changeOrigin: true,
+        target: 'http://backend:8000',
+        changeOrigin: false,
       }
     }
   },
