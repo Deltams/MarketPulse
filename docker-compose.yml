@@ -82,7 +82,23 @@ services:
     build: ./backend/lyalya
     image: 10.129.0.34:5000/backend-deploy:latest
     container_name: backend-deploy
-    command: sh -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command: >
+      sh -c '
+        until python -c "
+          import psycopg2
+          try:
+              conn = psycopg2.connect(dbname=postgres user=postgres password=qwer4617 host=postgres port=5432)
+          except Exception as e:
+              print(e)
+        "; do
+          >&2 echo "PostgreSQL is unavailable - sleeping";
+          sleep 1;
+        done;
+        echo "PostgreSQL is up!";
+        python manage.py makemigrations &&
+        python manage.py migrate &&
+        python manage.py runserver 0.0.0.0:8000
+      '
     networks:
       - market_pulse_main_network
       # - main_network 
