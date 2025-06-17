@@ -7,7 +7,7 @@ services:
   registry:
     image: registry:latest
     networks:
-      - market_pulse_main_network
+      - main_network
     environment:
       - REGISTRY_AUTH=none
     ports:
@@ -21,6 +21,10 @@ services:
         condition: on-failure
 
 #------------------------------------
+
+networks:
+  main_network:
+    driver: overlay
 
 volumes:
   my-registry: {}
