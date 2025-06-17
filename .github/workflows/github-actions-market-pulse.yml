@@ -57,8 +57,8 @@ jobs:
       - name: Building a new version
         run: sudo docker compose build
       - name: Update frontend
-        run: sudo docker service inspect market_pulse_frontend &>/dev/null && sudo docker service update --image frontend market_pulse_frontend || true
+        run: sudo docker service inspect market_pulse_frontend &>/dev/null && sudo docker service update --image frontend-deploy market_pulse_frontend || true
       - name: Update backend
-        run: sudo docker service inspect market_pulse_backend &>/dev/null && sudo docker service update --image backend market_pulse_backend || true
+        run: sudo docker service inspect market_pulse_backend &>/dev/null && sudo docker service update --image backend-deploy market_pulse_backend || true
       - name: Deploy repository
         run: sudo docker stack deploy --compose-file docker-compose.yml market_pulse
