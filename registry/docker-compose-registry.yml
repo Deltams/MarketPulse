@@ -13,8 +13,10 @@ services:
     ports:
       - 5000:5000
     volumes:
-      - ./config.yml:/etc/docker/registry/config.yml
       - my-registry:/var/lib/registry
+      - ./config.yml:/etc/docker/registry/config.yml
+      - ./cert.pem:/etc/docker/certs.d/10.129.0.34:5000/cert.pem
+      - ./key.pem:/etc/docker/certs.d/10.129.0.34:5000/key.pem
     deploy:
       replicas: 1
       restart_policy:
