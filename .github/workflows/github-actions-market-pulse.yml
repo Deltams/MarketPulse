@@ -59,7 +59,7 @@ jobs:
       - name: Creating registry
         run: sudo docker service inspect market_pulse_registry &>/dev/null && (sudo docker service rm market_pulse_registry && sudo docker service create --network market_pulse_main_network --name market_pulse_registry --publish target=5000,published=5000 --env REGISTRY_AUTH=none registry:latest) || (sudo docker stack rm market_pulse && sudo docker service create --network market_pulse_main_network --name market_pulse_registry --publish target=5000,published=5000 --env REGISTRY_AUTH=none registry:latest)
       - name: Building a new version
-        run: sudo docker compose build # --no-cache
+        run: sudo docker compose build --no-cache
       - name: Add tag frontend-deploy to repository
         run: sudo docker tag frontend-deploy 10.129.0.34:5000/frontend-deploy:latest
       - name: Push frontend to repository
