@@ -1,30 +1,40 @@
 <template>
   <div class="home">
     <!-- Hero Section -->
-    <v-parallax
-      src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?ixlib=rb-4.0.3"
-      height="600"
-      class="hero-section"
-    >
-      <div class="overlay"></div>
-      <div class="hero-content">
-        <h1 class="text-h2 font-weight-bold mb-4 welcome-text">
-          Добро пожаловать в $MarketPulse$
-        </h1>
-        <p class="text-h5 mb-6 welcome-subtitle">
-          Ваш надежный партнер в мире качественных товаров и услуг
-        </p>
-        <v-btn
-          to="/catalog"
-          color="primary"
-          size="x-large"
-          class="rounded-pill"
-          elevation="4"
-        >
-          Перейти в каталог
-        </v-btn>
+    <div class="hero-skeleton-stack">
+      <v-parallax
+        :src="heroImg"
+        height="600"
+        class="hero-section"
+      >
+        <div class="overlay"></div>
+        <div class="hero-content">
+          <h1 class="text-h2 font-weight-bold mb-4 welcome-text">
+            Добро пожаловать в MarketPulse
+          </h1>
+          <p class="text-h5 mb-6 welcome-subtitle">
+            Ваш надежный партнер в мире качественных товаров и услуг
+          </p>
+          <v-btn
+            to="/catalog"
+            color="primary"
+            size="x-large"
+            class="rounded-pill"
+            elevation="4"
+          >
+            Перейти в каталог
+          </v-btn>
+        </div>
+      </v-parallax>
+      <div v-if="showSkeletons" :class="['custom-hero-skeleton', { 'fade-out': skeletonsFadingOut }]">
+        <div class="hero-skeleton-img"></div>
+        <div class="hero-skeleton-content">
+          <div class="hero-skeleton-title"></div>
+          <div class="hero-skeleton-subtitle"></div>
+          <div class="hero-skeleton-btn"></div>
+        </div>
       </div>
-    </v-parallax>
+    </div>
 
     <!-- Featured Categories -->
     <v-container fluid class="py-12">
@@ -41,73 +51,56 @@
             md="4"
             lg="3"
           >
-            <v-card
-              :to="'/category/' + category.id"
-              class="category-card h-100"
-              elevation="2"
-              hover
-            >
-              <v-img
-                :src="category.image"
-                height="200"
-                cover
-                class="align-end"
-              >
-                <v-card-title class="text-white text-shadow">
-                  {{ category.name }}
-                </v-card-title>
-              </v-img>
-            </v-card>
+            <div class="category-skeleton-stack">
+              <CategoryCard :category="category" />
+              <div v-if="showSkeletons" :class="['custom-category-skeleton', { 'fade-out': skeletonsFadingOut }]">
+                <div class="category-skeleton-img"></div>
+                <div class="category-skeleton-title"></div>
+              </div>
+            </div>
           </v-col>
         </v-row>
       </v-container>
     </v-container>
 
     <!-- Featured Products -->
-    <v-container fluid class="py-12" v-if="featuredProducts.length > 0">
+    <v-container fluid class="py-12">
       <v-container class="transparent">
         <h2 class="text-h4 font-weight-bold text-center mb-8 text-shadow">
           Популярные товары
         </h2>
         <v-row>
           <v-col
-            v-for="product in featuredProducts"
-            :key="product.id"
+            v-for="(product, idx) in getProductSlots"
+            :key="product.id || 'skeleton-' + idx"
             cols="12"
             sm="6"
             md="4"
             lg="3"
+            class="product-col-wrapper"
           >
-            <v-card class="product-card h-100" elevation="2" hover>
-              <v-img
-                :src="product.image"
-                height="200"
-                cover
-                class="align-end"
+            <div class="product-skeleton-stack">
+              <ProductCard
+                v-if="product.id"
+                :product="product"
+                @add-to-cart="addToCart"
+              />
+              <div
+                v-if="showSkeletons"
+                :class="['custom-skeleton-card', { 'fade-out': skeletonsFadingOut }]"
               >
-                <v-card-title class="text-white text-shadow">
-                  {{ product.name }}
-                </v-card-title>
-              </v-img>
-              <v-card-text>
-                <div class="text-h6 font-weight-bold mb-2">
-                  {{ product.price }} ₽
+                <div class="skeleton-img"></div>
+                <div class="skeleton-content">
+                  <div class="skeleton-brand"></div>
+                  <div class="skeleton-price"></div>
+                  <div class="skeleton-desc"></div>
+                  <div class="skeleton-title"></div>
                 </div>
-                <div class="text-body-2 text-grey">
-                  {{ product.description }}
+                <div class="skeleton-actions">
+                  <div class="skeleton-btn"></div>
                 </div>
-              </v-card-text>
-              <v-card-actions>
-                <v-btn
-                  color="primary"
-                  variant="tonal"
-                  block
-                  @click="addToCart(product)"
-                >
-                  В корзину
-                </v-btn>
-              </v-card-actions>
-            </v-card>
+              </div>
+            </div>
           </v-col>
         </v-row>
       </v-container>
@@ -157,43 +150,94 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useCartStore } from '@/stores/cartStore'
+import { useAuthStore } from '@/stores/auth'
 import api from '@/api/config'
+import ProductCard from '@/components/products/ProductCard.vue'
+import CategoryCard from '@/components/products/CategoryCard.vue'
+
+import heroImg from '@/assets/photo-hero.jfif'
+import cat1 from '@/assets/photo-cat1.jfif'
+import cat2 from '@/assets/photo-cat2.jfif'
+import cat3 from '@/assets/photo-cat3.jfif'
+import cat4 from '@/assets/photo-cat4.jfif'
 
 const cartStore = useCartStore()
+const authStore = useAuthStore()
 
 const featuredCategories = ref([
   {
     id: 1,
     name: 'Электроника',
-    image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?ixlib=rb-4.0.3'
+    image: cat1
   },
   {
     id: 2,
     name: 'Одежда',
-    image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?ixlib=rb-4.0.3'
+    image: cat2
   },
   {
     id: 3,
-    name: 'Дом и сад',
-    image: 'https://images.unsplash.com/photo-1484101403633-562f891dc89a?ixlib=rb-4.0.3'
+    name: 'Дом и быт',
+    image: cat3
   },
   {
     id: 4,
-    name: 'Спорт',
-    image: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?ixlib=rb-4.0.3'
-  }
+    name: 'Спорт и отдых',
+    image: cat4
+  },
 ])
 
 const featuredProducts = ref([])
+const isLoadingProducts = ref(true)
+
+let dataLoaded = false
+let timerDone = false
+
+const showProducts = ref(false)
+const skeletonsFadingOut = ref(false)
+const showSkeletons = ref(true)
+
+const getProductSlots = computed(() => {
+  if (featuredProducts.value.length >= SKELETON_COUNT) {
+    return featuredProducts.value.slice(0, SKELETON_COUNT)
+  }
+  return [
+    ...featuredProducts.value,
+    ...Array(SKELETON_COUNT - featuredProducts.value.length).fill({})
+  ]
+})
+
+const finishSkeletons = () => {
+  skeletonsFadingOut.value = true
+  setTimeout(() => {
+    showSkeletons.value = false
+  }, 400) // 400ms = время transition
+}
 
 const fetchFeaturedProducts = async () => {
   try {
     const response = await api.get('/productlist/', { params: { featured: true } })
+    console.log('Featured products response:', response.data)
     featuredProducts.value = response.data.results || response.data
+    if (featuredProducts.value.length > 0) {
+      console.log('First product image URL:', featuredProducts.value[0].image)
+    }
+    dataLoaded = true
+    maybeShowProducts()
   } catch (error) {
     console.error('Error fetching featured products:', error)
+    dataLoaded = true
+    maybeShowProducts()
+  }
+}
+
+function maybeShowProducts() {
+  if (dataLoaded && timerDone) {
+    isLoadingProducts.value = false
+    showProducts.value = true
+    finishSkeletons()
   }
 }
 
@@ -201,14 +245,23 @@ const addToCart = (product) => {
   cartStore.addItem(product)
 }
 
+const SKELETON_COUNT = 4
+
 onMounted(() => {
   fetchFeaturedProducts()
+  setTimeout(() => {
+    timerDone = true
+    maybeShowProducts()
+  }, 3000)
 })
 </script>
 
 <style scoped>
 .hero-section {
   position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  margin: 24px 0 48px;
 }
 
 :deep(.v-application) {
@@ -256,6 +309,8 @@ onMounted(() => {
   background: rgba(255, 255, 255, 0.1) !important;
   backdrop-filter: blur(10px);
   transition: transform 0.2s ease;
+  border-radius: 16px;
+  overflow: hidden;
 }
 
 .category-card:hover {
@@ -263,19 +318,89 @@ onMounted(() => {
 }
 
 .product-card {
-  background: rgba(255, 255, 255, 0.1) !important;
-  backdrop-filter: blur(10px);
-  transition: transform 0.2s ease;
+  background: #fff !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10), 0 1.5px 4px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 16px;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  max-width: 320px;
+  margin: 0 auto;
+  will-change: transform;
+}
+
+.product-card .v-img {
+  height: 220px !important;
+  width: 100% !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+}
+
+.product-card .v-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  background: #fff;
+}
+
+.product-card .v-card-text {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.product-card .brand {
+  color: #6b7280;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+  letter-spacing: 0.02em;
+}
+
+.product-card .price {
+  color: #222;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  letter-spacing: 0.01em;
+}
+
+.product-card .v-card-title {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+  padding: 16px;
+  font-size: 1.1rem;
+  line-height: 1.4;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+.product-card .v-card-actions {
+  padding: 8px 16px 16px;
 }
 
 .product-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.14), 0 3px 8px rgba(0,0,0,0.10);
 }
 
 .feature-card {
   background: rgba(255, 255, 255, 0.8) !important;
   backdrop-filter: blur(10px);
   transition: transform 0.2s ease;
+  border-radius: 16px;
+  overflow: hidden;
 }
 
 .feature-card h3 {
@@ -300,29 +425,22 @@ onMounted(() => {
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-.transparent {
-  background: transparent !important;
+.v-container.fluid {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  margin: 24px 0;
+  padding: 32px 0 !important;
 }
 
-.v-container {
-  background: transparent !important;
+.v-container.transparent {
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-.v-container--fluid {
-  background: transparent !important;
-}
-
-.v-row {
-  background: transparent !important;
-}
-
-.v-col {
-  background: transparent !important;
-}
-
-.text-shadow {
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-  color: white;
+.text-h4 {
+  margin-bottom: 32px !important;
+  padding: 0 24px;
 }
 
 .catalog {
@@ -398,5 +516,227 @@ onMounted(() => {
   width: 100%;
   min-height: 600px;
   max-width: 1400px;
+}
+
+.v-card-actions {
+  padding: 8px 16px 16px;
+}
+
+.v-card-actions .v-btn {
+  background: linear-gradient(45deg, #1867C0, #5CBBF6) !important;
+  color: white !important;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.v-card-actions .v-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(45deg, #1565C0, #42A5F5) !important;
+}
+
+.product-skeleton-stack {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: stretch;
+}
+.custom-skeleton-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10), 0 1.5px 4px rgba(0,0,0,0.08);
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  background: #f3f6fa;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 0.5s;
+}
+.custom-skeleton-card.fade-out {
+  opacity: 0;
+}
+.skeleton-img,
+.skeleton-brand,
+.skeleton-price,
+.skeleton-desc,
+.skeleton-title,
+.skeleton-btn {
+  background: linear-gradient(90deg, #e0e7ef 25%, #f3f6fa 50%, #e0e7ef 75%);
+  background-size: 400px 100%;
+  animation: skeleton-loading 3s infinite linear;
+}
+.skeleton-img {
+  height: 220px;
+  width: 100%;
+}
+.skeleton-content {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.skeleton-brand, .skeleton-price, .skeleton-desc, .skeleton-title {
+  height: 18px;
+  border-radius: 4px;
+}
+.skeleton-brand { width: 60%; }
+.skeleton-price { width: 40%; height: 22px; }
+.skeleton-desc { width: 100%; height: 16px; }
+.skeleton-title { width: 90%; height: 20px; margin-top: 8px; }
+.skeleton-actions {
+  padding: 8px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.skeleton-btn {
+  height: 48px;
+  border-radius: 8px;
+  width: 100%;
+}
+@keyframes skeleton-loading {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.hero-skeleton-stack {
+  position: relative;
+}
+.custom-hero-skeleton {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 600px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f3f6fa;
+  border-radius: 16px;
+  opacity: 1;
+  transition: opacity 0.5s;
+  overflow: hidden;
+}
+.custom-hero-skeleton.fade-out {
+  opacity: 0;
+}
+.hero-skeleton-img {
+  width: 100%;
+  height: 100%;
+  min-height: 600px;
+  background: linear-gradient(90deg, #e0e7ef 25%, #f3f6fa 50%, #e0e7ef 75%);
+  background-size: 400px 100%;
+  animation: skeleton-loading 3s infinite linear;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  border-radius: 16px;
+  z-index: 1;
+}
+.hero-skeleton-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 120px;
+}
+.hero-skeleton-title {
+  width: 60%;
+  height: 48px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  background: linear-gradient(90deg, #e0e7ef 25%, #f3f6fa 50%, #e0e7ef 75%);
+  background-size: 400px 100%;
+  animation: skeleton-loading 3s infinite linear;
+}
+.hero-skeleton-subtitle {
+  width: 50%;
+  height: 32px;
+  border-radius: 8px;
+  margin-bottom: 32px;
+  background: linear-gradient(90deg, #e0e7ef 25%, #f3f6fa 50%, #e0e7ef 75%);
+  background-size: 400px 100%;
+  animation: skeleton-loading 3s infinite linear;
+}
+.hero-skeleton-btn {
+  width: 220px;
+  height: 56px;
+  border-radius: 28px;
+  background: linear-gradient(90deg, #e0e7ef 25%, #f3f6fa 50%, #e0e7ef 75%);
+  background-size: 400px 100%;
+  animation: skeleton-loading 3s infinite linear;
+}
+
+.category-skeleton-stack {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 260px;
+}
+.custom-category-skeleton {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  border-radius: 16px;
+  background: #f3f6fa;
+  opacity: 1;
+  transition: opacity 0.5s;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-end;
+}
+.custom-category-skeleton.fade-out {
+  opacity: 0;
+}
+.category-skeleton-img {
+  width: 100%;
+  height: 200px;
+  border-radius: 16px 16px 0 0;
+  background: linear-gradient(90deg, #e0e7ef 25%, #f3f6fa 50%, #e0e7ef 75%);
+  background-size: 400px 100%;
+  animation: skeleton-loading 3s infinite linear;
+}
+.category-skeleton-title {
+  width: 70%;
+  height: 28px;
+  margin: 16px auto 24px auto;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #e0e7ef 25%, #f3f6fa 50%, #e0e7ef 75%);
+  background-size: 400px 100%;
+  animation: skeleton-loading 3s infinite linear;
+}
+@keyframes skeleton-loading {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
 }
 </style> 

@@ -32,7 +32,7 @@
           <v-btn to="/login" variant="text" color="white" class="ml-2">
             Войти
           </v-btn>
-          <v-btn to="/profile" variant="text" color="white">
+          <v-btn v-if="isAuthenticated" to="/profile" variant="text" color="white">
             Профиль
           </v-btn>
         </div>
@@ -52,7 +52,7 @@
         <v-list-item to="/about" title="О нас"></v-list-item>
         <v-divider></v-divider>
         <v-list-item to="/login" title="Войти"></v-list-item>
-        <v-list-item to="/profile" title="Профиль "></v-list-item>
+        <v-list-item v-if="isAuthenticated" to="/profile" title="Профиль"></v-list-item>
       </v-list>
     </v-navigation-drawer>
 
@@ -69,10 +69,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import CartWidget from '@/components/cart/CartWidget.vue'
+import { useAuthStore } from '@/stores/auth'
 
 const drawer = ref(false)
+const authStore = useAuthStore()
+const isAuthenticated = computed(() => authStore.isAuthenticated)
 </script>
 
 <style scoped>
@@ -81,6 +84,13 @@ const drawer = ref(false)
 }
 
 .v-container {
-  max-width: 1400px !important;
+  max-width: 1920px !important;
+  padding: 0 24px !important;
+}
+
+@media (max-width: 600px) {
+  .v-container {
+    padding: 0 16px !important;
+  }
 }
 </style>

@@ -1,160 +1,186 @@
 <template>
-  <div class="product">
-    <div v-if="loading" class="loading">Loading...</div>
-    <div v-else-if="error" class="error">{{ error }}</div>
-    <template v-else>
-      <div class="product-details">
-        <h1>{{ product.name }}</h1>
-        <p class="price">${{ product.price }}</p>
-        <p class="description">{{ product.description }}</p>
-        
-        <div class="product-meta">
-          <div class="meta-item">
-            <strong>Brand:</strong>
-            <router-link :to="`/brands/${product.brand_id}`" class="link">
-              {{ product.brand_name }}
-            </router-link>
-          </div>
-          <div class="meta-item">
-            <strong>Category:</strong>
-            <router-link :to="`/category/${product.category_id}`" class="link">
-              {{ product.category_name }}
-            </router-link>
-          </div>
-        </div>
+  <v-container>
+    <div v-if="loading" class="text-center">
+      <v-progress-circular
+        indeterminate
+        color="primary"
+        size="64"
+      ></v-progress-circular>
+      <div class="text-h6 mt-4">Загрузка товара...</div>
+    </div>
 
-        <div class="actions">
-          <button class="add-to-cart" @click="addToCart">
-            Add to Cart
-          </button>
-        </div>
-      </div>
+    <div v-else-if="error">
+      <v-alert
+        type="error"
+        variant="tonal"
+        class="mb-4"
+      >
+        {{ error }}
+      </v-alert>
+    </div>
+
+    <template v-else>
+      <v-card class="product-card">
+        <v-img
+          :src="product.image"
+          height="400"
+          cover
+          class="align-end"
+        >
+          <v-card-title class="text-white text-shadow">
+            {{ product.name }}
+          </v-card-title>
+        </v-img>
+
+        <v-card-text>
+          <div class="text-subtitle-1 text-primary mb-2">
+            {{ product.brand_name || product.brand?.name || 'Без бренда' }}
+          </div>
+          <div class="text-h4 font-weight-bold mb-4">
+            {{ product.price }} ₽
+          </div>
+          <div class="text-body-1 mb-6">
+            {{ product.description }}
+          </div>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-btn
+            color="primary"
+            variant="tonal"
+            block
+            @click="addToCart"
+            class="mb-2"
+          >
+            В корзину
+          </v-btn>
+
+          <!-- Кнопки для продавца -->
+          <template v-if="isProductOwner">
+            <v-btn
+              color="primary"
+              variant="outlined"
+              block
+              @click="editProduct"
+              class="mb-2"
+            >
+              Редактировать
+            </v-btn>
+            <v-btn
+              color="error"
+              variant="outlined"
+              block
+              @click="confirmDelete"
+            >
+              Удалить
+            </v-btn>
+          </template>
+        </v-card-actions>
+      </v-card>
+
+      <!-- Диалог подтверждения удаления -->
+      <v-dialog v-model="deleteDialog" max-width="400">
+        <v-card>
+          <v-card-title class="text-h5">
+            Подтверждение удаления
+          </v-card-title>
+          <v-card-text>
+            Вы уверены, что хотите удалить этот товар? Это действие нельзя отменить.
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn
+              color="grey-darken-1"
+              variant="text"
+              @click="deleteDialog = false"
+            >
+              Отмена
+            </v-btn>
+            <v-btn
+              color="error"
+              variant="text"
+              @click="deleteProduct"
+            >
+              Удалить
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </template>
-  </div>
+  </v-container>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import api from '../api/config';
+import { ref, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useCartStore } from '@/stores/cartStore'
+import { useAuthStore } from '@/stores/auth'
+import api from '@/api/config'
 
-interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  brand_id: number;
-  brand_name: string;
-  category_id: number;
-  category_name: string;
-}
+const route = useRoute()
+const router = useRouter()
+const cartStore = useCartStore()
+const authStore = useAuthStore()
 
-const route = useRoute();
-const product = ref<Product | null>(null);
-const loading = ref(true);
-const error = ref('');
+const product = ref(null)
+const loading = ref(true)
+const error = ref('')
+const deleteDialog = ref(false)
+
+const isProductOwner = computed(() => {
+  if (!product.value || !authStore.isAuthenticated) return false
+  return product.value.brand?.id === authStore.user?.brand_id
+})
 
 const fetchProduct = async () => {
   try {
-    const productId = route.params.id;
-    const response = await api.get(`/productlist/${productId}/`);
-    product.value = response.data;
+    const response = await api.get(`/productlist/${route.params.id}/`)
+    product.value = response.data
   } catch (err) {
-    error.value = 'Failed to load product';
-    console.error('Error fetching product:', err);
+    error.value = 'Не удалось загрузить товар'
+    console.error('Error fetching product:', err)
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
 const addToCart = () => {
-  // TODO: Implement cart functionality
-  console.log('Add to cart clicked');
-};
+  cartStore.addItem(product.value)
+}
+
+const editProduct = () => {
+  router.push(`/products/${product.value.id}/edit`)
+}
+
+const confirmDelete = () => {
+  deleteDialog.value = true
+}
+
+const deleteProduct = async () => {
+  try {
+    await api.delete(`/productlist/${product.value.id}/`)
+    router.push('/catalog')
+  } catch (err) {
+    error.value = 'Не удалось удалить товар'
+    console.error('Error deleting product:', err)
+  }
+  deleteDialog.value = false
+}
 
 onMounted(() => {
-  fetchProduct();
-});
+  fetchProduct()
+})
 </script>
 
 <style scoped>
-.product {
-  padding: 2rem;
+.product-card {
   max-width: 800px;
   margin: 0 auto;
+  border-radius: 16px;
+  overflow: hidden;
 }
 
-.product-details {
-  background-color: white;
-  border-radius: 8px;
-  padding: 2rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-h1 {
-  color: #2c3e50;
-  margin: 0 0 1rem 0;
-}
-
-.price {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #2c3e50;
-  margin: 1rem 0;
-}
-
-.description {
-  color: #666;
-  margin-bottom: 2rem;
-  line-height: 1.6;
-}
-
-.product-meta {
-  margin-bottom: 2rem;
-}
-
-.meta-item {
-  margin-bottom: 0.5rem;
-}
-
-.link {
-  color: #3498db;
-  text-decoration: none;
-  margin-left: 0.5rem;
-}
-
-.link:hover {
-  text-decoration: underline;
-}
-
-.actions {
-  margin-top: 2rem;
-}
-
-.add-to-cart {
-  background-color: #2c3e50;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.3s;
-}
-
-.add-to-cart:hover {
-  background-color: #34495e;
-}
-
-.loading {
-  text-align: center;
-  padding: 2rem;
-  color: #666;
-}
-
-.error {
-  color: #dc3545;
-  text-align: center;
-  padding: 1rem;
+.text-shadow {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 </style>

@@ -34,6 +34,7 @@ body {
 
 #app {
   min-height: 100vh;
+  max-width: 100% !important;
 }
 
 .v-application {
@@ -46,15 +47,17 @@ body {
 
 .v-main {
   background: transparent !important;
+  max-width: 100% !important;
+}
+
+.v-container {
+  max-width: 1920px !important;
+  padding: 0 24px !important;
 }
 
 .v-card {
   background: rgba(255, 255, 255, 0.1) !important;
   backdrop-filter: blur(10px);
-}
-
-.v-container {
-  background: transparent !important;
 }
 
 .v-sheet {

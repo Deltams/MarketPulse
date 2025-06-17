@@ -52,7 +52,7 @@ router.beforeEach(async (to, from, next) => {
   }
 
   if (requiresAuth && !authStore.isAuthenticated) {
-    next({ name: 'login', query: { redirect: to.fullPath } });
+    next({ name: 'home' });
   } else if (requiresSeller && !authStore.isSeller) {
     next({ name: 'home' });
   } else if (requiresAdmin && !authStore.isAdmin) {
