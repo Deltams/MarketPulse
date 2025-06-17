@@ -25,7 +25,7 @@ jobs:
       - name: Stopping and deleting the compiled application
         run: sudo docker stack rm myapp
       - name: Cleaning up unused images
-        run: sudo docker system prune -f # -f пропуск вопроса [y/N] (можно -af тогда ВСЕ лишнее удалим)  
+        run: sudo docker system prune -f # -f пропуск вопроса [y/N] (можно -af тогда ВСЕ лишнее удалим)   
   test:
     needs: [build]
     runs-on: self-hosted # ubuntu-latest, если на серверах GitHub; self-hosted, если свой сервер 
