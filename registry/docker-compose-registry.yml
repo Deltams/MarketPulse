@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+
+#------------------------------------
+
+  registry:
+    image: registry:latest
+    container_name: registry-2025
+    networks:
+      - main_network
+    environment:
+      - REGISTRY_AUTH=none
+    ports:
+      - 5000:5000
+    volumes:
+      - ./config.yml:/etc/docker/registry/config.yml
+      - my-registry:/var/lib/registry
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+#------------------------------------
+
+networks:
+  main_network:
+    driver: overlay
+    attachable: true
+    external: false
+
+volumes:
+  my-registry: {}
