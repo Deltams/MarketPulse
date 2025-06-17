@@ -68,4 +68,5 @@ jobs:
         run: sudo docker tag backend-deploy localhost:5000/backend-deploy:latest
       - name: Push backend to repository
         run: sudo docker push localhost:5000/backend-deploy:latest
+      - name: Deploy repository
         run: sudo docker stack deploy --compose-file docker-compose.yml market_pulse
