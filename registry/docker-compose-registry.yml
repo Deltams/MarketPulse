@@ -15,8 +15,7 @@ services:
     volumes:
       - my-registry:/var/lib/registry
       - ./config.yml:/etc/docker/registry/config.yml
-      - ./cert.pem:/etc/docker/certs.d/10.129.0.34:5000/cert.pem
-      - ./key.pem:/etc/docker/certs.d/10.129.0.34:5000/key.pem
+      - ./certs/:/etc/docker/certs.d/10.129.0.34:5000/
     deploy:
       replicas: 1
       restart_policy:
