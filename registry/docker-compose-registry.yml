@@ -6,7 +6,6 @@ services:
 
   registry:
     image: registry:latest
-    container_name: registry-2025
     networks:
       - main_network
     environment:
@@ -27,7 +26,7 @@ networks:
   main_network:
     driver: overlay
     attachable: true
-    external: false
+    external: true
 
 volumes:
   my-registry: {}
