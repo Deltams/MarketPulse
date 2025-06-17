@@ -61,7 +61,7 @@ jobs:
       - name: Building a new version
         run: sudo docker compose build # --no-cache
       - name: Add tag frontend-deploy to repository
-        run: sudo docker tag frontend-deploy localhost:5000/frontend-deploy:latest
+        run: sudo docker tag frontend-deploy localhost:5000/frontend-deploy:latest && sleep 5
       - name: Push frontend to repository
         run: sudo docker push localhost:5000/frontend-deploy:latest
       - name: Add tag backend-deploy to repository
