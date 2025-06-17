@@ -57,7 +57,7 @@ jobs:
       - name: Creating networkAdd commentMore actions
         run: sudo docker network inspect market_pulse_main_network &>/dev/null && true || (sudo docker network create --driver overlay --attachable market_pulse_main_network && sleep 5) 
       - name: Creating registry
-        run: sudo docker service inspect market_pulse_registry &>/dev/null && true || (sudo docker stack rm market_pulse &&  && sudo docker service create --network market_pulse_main_network --name market_pulse_registry --publish target=5000,published=5000 --env REGISTRY_AUTH=none registry:latest && sleep 5)
+        run: sudo docker service inspect market_pulse_registry &>/dev/null && true || (sudo docker stack rm market_pulse && sudo docker service create --network market_pulse_main_network --name market_pulse_registry --publish target=5000,published=5000 --env REGISTRY_AUTH=none registry:latest && sleep 5)
       - name: Building a new version
         run: sudo docker compose build # --no-cache
       - name: Add tag frontend-deploy to repository
