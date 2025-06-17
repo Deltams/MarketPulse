@@ -60,3 +60,5 @@ jobs:
         run: sudo docker stack rm market_pulse  
       - name: Deploy repository
         run: sudo docker stack deploy --compose-file docker-compose.yml market_pulse
+      - name: Check start
+        run: sudo docker service update --force market_pulse_grafana
