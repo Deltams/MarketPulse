@@ -84,16 +84,8 @@ services:
     container_name: backend-deploy
     command: >
       sh -c '
-        until python -c "
-          import psycopg2
-          try:
-              conn = psycopg2.connect(dbname=postgres user=postgres password=qwer4617 host=postgres port=5432)
-          except Exception as e:
-              print(e)
-        "; do
-          >&2 echo "PostgreSQL is unavailable - sleeping";
-          sleep 1;
-        done;
+        until python -c until python -c "import psycopg2; try: conn = psycopg2.connect(\'dbname=postgres user=postgres password=qwer4617 host=postgres port=5432\'); except Exception as e: print(e)";
+        do >&2 echo "PostgreSQL is unavailable - sleeping"; sleep 1; done;
         echo "PostgreSQL is up!";
         python manage.py makemigrations &&
         python manage.py migrate &&
