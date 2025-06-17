@@ -232,9 +232,9 @@ services:
 
 networks:
   main_network:
-    driver: overlay
-    attachable: true
-    external: false
+    # driver: overlay
+    # attachable: true
+    external: true
 
 volumes:
   my-pg-volume: {}
