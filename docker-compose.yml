@@ -78,7 +78,7 @@ services:
 
   backend:
     build: ./backend/lyalya
-    image: localhost:5000/backend-deploy:latest
+    image: 10.129.0.34:5000/backend-deploy:latest
     container_name: backend-deploy
     networks:
       - main_network 
@@ -106,7 +106,7 @@ services:
 
   frontend:
     build: ./frontend
-    image: localhost:5000/frontend-deploy:latest
+    image: 10.129.0.34:5000/frontend-deploy:latest
     container_name: frontend-deploy
     networks:
       - main_network 

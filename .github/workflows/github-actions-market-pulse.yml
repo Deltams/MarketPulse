@@ -61,12 +61,12 @@ jobs:
       - name: Building a new version
         run: sudo docker compose build # --no-cache
       - name: Add tag frontend-deploy to repository
-        run: sudo docker tag frontend-deploy localhost:5000/frontend-deploy:latest && sleep 5
+        run: sudo docker tag frontend-deploy 10.129.0.34:5000/frontend-deploy:latest
       - name: Push frontend to repository
-        run: sudo docker push localhost:5000/frontend-deploy:latest
+        run: sudo docker push 10.129.0.34:5000/frontend-deploy:latest
       - name: Add tag backend-deploy to repository
-        run: sudo docker tag backend-deploy localhost:5000/backend-deploy:latest
+        run: sudo docker tag backend-deploy 10.129.0.34:5000/backend-deploy:latest
       - name: Push backend to repository
-        run: sudo docker push localhost:5000/backend-deploy:latest
+        run: sudo docker push 10.129.0.34:5000/backend-deploy:latest
       - name: Deploy repository
         run: sudo docker stack deploy --compose-file docker-compose.yml market_pulse
