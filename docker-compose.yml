@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
 
 #------------------------------------
@@ -76,7 +78,7 @@ services:
 
   backend:
     build: ./backend/lyalya
-    image: backend-deploy
+    image: localhost:5000/backend-deploy:latest
     container_name: backend-deploy
     networks:
       - main_network 
@@ -104,7 +106,7 @@ services:
 
   frontend:
     build: ./frontend
-    image: frontend-deploy
+    image: localhost:5000/frontend-deploy:latest
     container_name: frontend-deploy
     networks:
       - main_network 

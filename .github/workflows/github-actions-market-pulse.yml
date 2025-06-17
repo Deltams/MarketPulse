@@ -19,7 +19,7 @@ jobs:
       # - name: Start PostgreSQL
       #   run: sudo docker compose -f docker-compose-build-test.yml up postgres -d  
       - name: Building a new version
-        run: sudo docker compose -f docker-compose-build-test.yml build --no-cache
+        run: sudo docker compose -f docker-compose-build-test.yml build # --no-cache
       - name: Deploy repository
         run: sudo docker stack deploy --compose-file docker-compose-build-test.yml myapp
       - name: Stopping and deleting the compiled application
@@ -54,11 +54,18 @@ jobs:
         uses: actions/checkout@v4
       - name: Cleaning up unused images
         run: sudo docker system prune -f # -f пропуск вопроса [y/N] (можно -af тогда ВСЕ лишнее удалим)
+      - name: Creating network
+        run: sudo docker network inspect market_pulse_main_network &>/dev/null && true || sudo docker network create --driver overlay --attachable market_pulse_main_network
+      - name: Creating registry
+        run: sudo docker service inspect market_pulse_registry &>/dev/null && true || sudo docker service create --network market_pulse_main_network --name market_pulse_registry --publish target=5000,published=5000 --env REGISTRY_AUTH=none registry:latest
       - name: Building a new version
-        run: sudo docker compose build --no-cache
-      - name: Update frontend
-        run: sudo docker service inspect market_pulse_frontend &>/dev/null && sudo docker service update --image frontend-deploy market_pulse_frontend || true
-      - name: Update backend
-        run: sudo docker service inspect market_pulse_backend &>/dev/null && sudo docker service update --image backend-deploy market_pulse_backend || true
-      - name: Deploy repository
+        run: sudo docker compose build # --no-cache
+      - name: Add tag frontend-deploy to repository
+        run: sudo docker tag frontend-deploy localhost:5000/frontend-deploy:latest
+      - name: Push frontend to repository
+        run: sudo docker push localhost:5000/frontend-deploy:latest
+      - name: Add tag backend-deploy to repository
+        run: sudo docker tag backend-deploy localhost:5000/backend-deploy:latest
+      - name: Push backend to repository
+        run: sudo docker push localhost:5000/backend-deploy:latest
         run: sudo docker stack deploy --compose-file docker-compose.yml market_pulse
