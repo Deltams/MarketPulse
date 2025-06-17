@@ -82,6 +82,7 @@ services:
     build: ./backend/lyalya
     image: 10.129.0.34:5000/backend-deploy:latest
     container_name: backend-deploy
+    command: sh -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     networks:
       - market_pulse_main_network
       # - main_network 
