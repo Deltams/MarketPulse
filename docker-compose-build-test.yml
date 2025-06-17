@@ -13,7 +13,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: qwer4617
     # ports:
-    #   - 4030:5432
+    #   - 4031:5432
     volumes:
       - ./backend/app/config/init.sql:/docker-entrypoint-initdb.d/init.sql
       - my-pg-volume:/var/lib/postgresql/data
@@ -77,7 +77,7 @@ services:
 #------------------------------------
 
   backend:
-    build: ./backend/lyalya
+    build: ./backend/test
     image: backend-deploy
     container_name: backend-deploy
     networks:

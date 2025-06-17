@@ -14,14 +14,14 @@ jobs:
           version: latest
       - name: Check Docker Compose Syntax
         run: sudo docker compose config
-      # - name: Creating a swarm docker
+      # - name: Creating a swarm docker # Если запуск на серверах GitHub
       #   run: sudo docker swarm init
       # - name: Start PostgreSQL
-      #   run: sudo docker compose -f docker-compose-build.yml up postgres -d  
+      #   run: sudo docker compose -f docker-compose-build-test.yml up postgres -d  
       - name: Building a new version
-        run: sudo docker compose -f docker-compose-build.yml build
+        run: sudo docker compose -f docker-compose-build-test.yml build
       - name: Deploy repository
-        run: sudo docker stack deploy --compose-file docker-compose-build.yml myapp
+        run: sudo docker stack deploy --compose-file docker-compose-build-test.yml myapp
       - name: Stopping and deleting the compiled application
         run: sudo docker stack rm myapp
       - name: Cleaning up unused images
