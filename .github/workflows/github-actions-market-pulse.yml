@@ -3,70 +3,60 @@ on:
   push:
     branches: [main]
 jobs:
-  # build:
-  #   runs-on: self-hosted
-  #   steps:
-  #     - name: Check out repository code
-  #       uses: actions/checkout@v4
-  #     - name: Set up Docker Compose
-  #       uses: docker/setup-compose-action@v1
-  #       with:
-  #         version: latest
-  #     - name: Check Docker Compose Syntax
-  #       run: sudo docker compose config
-  #     # - name: Creating a swarm docker # Если запуск на серверах GitHub
-  #     #   run: sudo docker swarm init
-  #     # - name: Start PostgreSQL
-  #     #   run: sudo docker compose -f docker-compose-build-test.yml up postgres -d  
-  #     - name: Building a new version
-  #       run: sudo docker compose -f docker-compose-build-test.yml build # --no-cache
-  #     - name: Deploy repository
-  #       run: sudo docker stack deploy --compose-file docker-compose-build-test.yml myapp
-  #     - name: Stopping and deleting the compiled application
-  #       run: sudo docker stack rm myapp
-  #     - name: Cleaning up unused images
-  #       run: sudo docker system prune -f # -f пропуск вопроса [y/N] (можно -af тогда ВСЕ лишнее удалим)   
-  # test:
-  #   needs: [build]
-  #   runs-on: self-hosted # ubuntu-latest, если на серверах GitHub; self-hosted, если свой сервер 
-  #   steps:
-  #     - name: Check out repository code
-  #       uses: actions/checkout@v4
-  #     - name: Set up Python
-  #       uses: actions/setup-python@v4
-  #       with:
-  #         python-version: '3.x' # Установка актуальной версии Python
-  #     - name: Install dependencies
-  #       run: sudo apt-get update && sudo apt-get install -y gcc libpq-dev sqlite3 && pip install -r ./backend/lyalya/requirements.txt
-  #     - name: Migrate testDB
-  #       run: python ./backend/lyalya/manage.py makemigrations --settings=lyalya.settings_test && python ./backend/lyalya/manage.py migrate --settings=lyalya.settings_test 
-  #     - name: Run Tests Models
-  #       run: python ./backend/lyalya/manage.py test core.tests.models --settings=lyalya.settings_test
-  #     - name: Run Tests API View
-  #       run: python ./backend/lyalya/manage.py test core.tests.api_view --settings=lyalya.settings_test
-  #     - name: Run Tests HTML View
-  #       run: python ./backend/lyalya/manage.py test core.tests.html_view --settings=lyalya.settings_test
+  build:
+    runs-on: self-hosted
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Set up Docker Compose
+        uses: docker/setup-compose-action@v1
+        with:
+          version: latest
+      - name: Check Docker Compose Syntax
+        run: sudo docker compose config
+      # - name: Creating a swarm docker # Если запуск на серверах GitHub
+      #   run: sudo docker swarm init
+      # - name: Start PostgreSQL
+      #   run: sudo docker compose -f docker-compose-build-test.yml up postgres -d  
+      - name: Building a new version
+        run: sudo docker compose -f docker-compose-build-test.yml build # --no-cache
+      - name: Deploy repository
+        run: sudo docker stack deploy --compose-file docker-compose-build-test.yml myapp
+      - name: Stopping and deleting the compiled application
+        run: sudo docker stack rm myapp
+      - name: Cleaning up unused images
+        run: sudo docker system prune -f # -f пропуск вопроса [y/N] (можно -af тогда ВСЕ лишнее удалим)   
+  test:
+    needs: [build]
+    runs-on: self-hosted # ubuntu-latest, если на серверах GitHub; self-hosted, если свой сервер 
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x' # Установка актуальной версии Python
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y gcc libpq-dev sqlite3 && pip install -r ./backend/lyalya/requirements.txt
+      - name: Migrate testDB
+        run: python ./backend/lyalya/manage.py makemigrations --settings=lyalya.settings_test && python ./backend/lyalya/manage.py migrate --settings=lyalya.settings_test 
+      - name: Run Tests Models
+        run: python ./backend/lyalya/manage.py test core.tests.models --settings=lyalya.settings_test
+      - name: Run Tests API View
+        run: python ./backend/lyalya/manage.py test core.tests.api_view --settings=lyalya.settings_test
+      - name: Run Tests HTML View
+        run: python ./backend/lyalya/manage.py test core.tests.html_view --settings=lyalya.settings_test
   deploy:
-    # needs: [build, test]
+    needs: [build, test]
     runs-on: self-hosted
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
       - name: Cleaning up unused images
         run: sudo docker system prune -f # -f пропуск вопроса [y/N] (можно -af тогда ВСЕ лишнее удалим)
-      - name: Creating networkAdd commentMore actions
-        run: sudo docker network inspect market_pulse_main_network &>/dev/null && true || (sudo docker network create --driver overlay --attachable market_pulse_main_network && sleep 5) 
-      - name: Creating registry
-        run: sudo docker service inspect market_pulse_registry &>/dev/null && (sudo docker service rm market_pulse_registry && sudo docker service create --network market_pulse_main_network --name market_pulse_registry --publish target=5000,published=5000 --env REGISTRY_AUTH=none registry:latest) || (sudo docker stack rm market_pulse && sudo docker service create --network market_pulse_main_network --name market_pulse_registry --publish target=5000,published=5000 --env REGISTRY_AUTH=none registry:latest)
       - name: Building a new version
-        run: sudo docker compose build # --no-cache
-      # - name: Add tag frontend-deploy to repository
-      #   run: sudo docker tag frontend-deploy 10.129.0.34:5000/frontend-deploy:latest
-      - name: Push frontend to repository
-        run: sudo docker push 10.129.0.34:5000/frontend-deploy:latest
-      # - name: Add tag backend-deploy to repository
-      #   run: sudo docker tag backend-deploy 10.129.0.34:5000/backend-deploy:latest
-      - name: Push backend to repository
-        run: sudo docker push 10.129.0.34:5000/backend-deploy:latest
+        run: sudo docker compose -f docker-compose.yml build # --no-cache
+      - name: Delete last repository
+        run: sudo docker stack rm market_pulse  
       - name: Deploy repository
         run: sudo docker stack deploy --compose-file docker-compose.yml market_pulse
