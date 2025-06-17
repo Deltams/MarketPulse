@@ -8,7 +8,8 @@ services:
     image: postgres
     container_name: my-postgres-2025
     networks:
-      - main_network
+      - market_pulse_main_network
+      # - main_network
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: qwer4617
@@ -45,7 +46,8 @@ services:
     image: dpage/pgadmin4
     container_name: pgadmin-2025
     networks:
-      - main_network
+      - market_pulse_main_network
+      # - main_network
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@pgadmin.com
       PGADMIN_DEFAULT_PASSWORD: admin
@@ -81,7 +83,8 @@ services:
     image: 10.129.0.34:5000/backend-deploy:latest
     container_name: backend-deploy
     networks:
-      - main_network 
+      - market_pulse_main_network
+      # - main_network 
     ports:
       - 8000:8000
     depends_on:
@@ -109,7 +112,8 @@ services:
     image: 10.129.0.34:5000/frontend-deploy:latest
     container_name: frontend-deploy
     networks:
-      - main_network 
+      - market_pulse_main_network
+      # - main_network 
     ports:
       - 4488:4488
     deploy:
@@ -134,7 +138,8 @@ services:
     image: grafana/grafana-oss
     container_name: grafana-2025
     networks:
-      - main_network
+      - market_pulse_main_network
+      # - main_network
     environment:
       GF_PATHS_PROVISIONING: '/etc/grafana/provisioning/'
     ports:
@@ -171,7 +176,8 @@ services:
     image: prom/prometheus
     container_name: prometheus-2025
     networks:
-      - main_network
+      - market_pulse_main_network
+      # - main_network
     # ports: # Открыть/закрыть для внешнего доступа
     #   - "9090:9090"
     volumes:
@@ -200,7 +206,8 @@ services:
     image: prom/node-exporter
     container_name: exporter-2025
     networks:
-      - main_network
+      - market_pulse_main_network
+      # - main_network
     # ports: # Открыть/закрыть для внешнего доступа
     #   - "9100:9100"
     volumes:
@@ -231,10 +238,12 @@ services:
 #------------------------------------ 
 
 networks:
-  main_network:
+  market_pulse_main_network:
+    external: true
+  # main_network:
     # driver: overlay
     # attachable: true
-    external: true
+    # external: false
 
 volumes:
   my-pg-volume: {}
