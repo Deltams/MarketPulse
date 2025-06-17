@@ -57,9 +57,9 @@ jobs:
       - name: Building a new version
         run: sudo docker compose -f docker-compose.yml build # --no-cache
       - name: Delete last backend
-        run: sudo docker service rm market_pulse_backend 
+        run: sudo docker service inspect market_pulse_backend &>/dev/null && sudo docker service rm market_pulse_backend || true
       - name: Delete last frontend
-        run: sudo docker service rm market_pulse_frontend  
+        run: sudo docker service inspect market_pulse_frontend &>/dev/null && sudo docker service rm market_pulse_frontend || true 
       - name: Deploy repository
         run: sudo docker stack deploy --compose-file docker-compose.yml market_pulse
       - name: Check start
