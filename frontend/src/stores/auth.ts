@@ -40,10 +40,11 @@ export const useAuthStore = defineStore('auth', () => {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await axios.post('/api/v1/auth/login', { email, password });
-      const { user, token } = response.data;
-      setAuth(user, token);
-      return user;
+      const response = await axios.post('/api/v1/auth/token', { email, password });
+      const { access, refresh } = response.data;
+      setAuth({ email, role: 'buyer' }, access);
+      localStorage.setItem('refreshToken', refresh);
+      return { email, role: 'buyer' };
     } catch (error) {
       clearAuth();
       throw error;

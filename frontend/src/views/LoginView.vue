@@ -21,7 +21,7 @@
                 type="email"
                 :rules="[
                   v => !!v || 'Обязательное поле',
-                  v => /.+@.+\..+/.test(v) || 'Некорректный email'
+                  // v => /.+@.+\..+/.test(v) || 'Некорректный email'
                 ]"
                 prepend-icon="mdi-email"
               />
