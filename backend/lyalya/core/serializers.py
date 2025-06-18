@@ -67,11 +67,19 @@ class ProductSerializer(serializers.ModelSerializer):
         return value
 
 class UserSerializer(serializers.ModelSerializer):
+    role = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ('id', 'email', 'username', 'first_name', 'last_name', 'is_seller', 'is_buyer')
-        read_only_fields = ('id', 'email', 'is_seller', 'is_buyer')
+        fields = ('id', 'email', 'username', 'first_name', 'last_name', 'is_seller', 'is_buyer', 'role')
+        read_only_fields = ('id', 'email', 'is_seller', 'is_buyer', 'role')
 
+    def get_role(self, obj):
+        if obj.is_seller:
+            return 'seller'
+        elif obj.is_buyer:
+            return 'buyer'
+        return 'buyer'  # default role
 
 class CartSerializer(serializers.ModelSerializer):
     class Meta:
