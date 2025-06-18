@@ -55,6 +55,9 @@ def main():
         else:
             final_args.append(sys.argv[i])
         i += 1
+    print(sys.argv)
+    print()
+    print(final_args)
 
     try:
         from django.core.management import execute_from_command_line
