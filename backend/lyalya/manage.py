@@ -45,6 +45,17 @@ def main():
     if args.waitpg is not None:
         wait_for_db()
 
+    final_args = []
+    i = 0
+    while i < len(sys.argv):
+        if sys.argv[i].startswith("--waitpg"):
+            pass
+        elif i+1 < len(sys.argv) and sys.argv[i+1].startswith("--waitpg"):
+            i += 1
+        else:
+            final_args.append(sys.argv[i])
+        i += 1
+
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
@@ -53,7 +64,7 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
-    execute_from_command_line(sys.argv)
+    execute_from_command_line(final_args)
 
 
 if __name__ == '__main__':
