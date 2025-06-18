@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
-export const MEDIA_BASE_URL = import.meta.env.VITE_MEDIA_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://10.129.0.34:8000/api/v1';
+export const MEDIA_BASE_URL = import.meta.env.VITE_MEDIA_BASE_URL || 'http://10.129.0.34:8000';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -41,7 +41,7 @@ api.interceptors.response.use(
         // Try to refresh the token
         const refreshToken = localStorage.getItem('refreshToken');
         if (refreshToken) {
-          const response = await axios.post('http://localhost:8000/api/v1/auth/token/refresh/', {
+          const response = await axios.post('http://10.129.0.34:8000/api/v1/auth/token/refresh/', {
             refresh: refreshToken
           });
 
