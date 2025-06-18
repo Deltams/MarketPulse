@@ -15,7 +15,7 @@ jobs:
       - name: Check Docker Compose Syntax
         run: sudo docker compose config
       # - name: Creating a swarm docker # Если запуск на серверах GitHub
-      #   run: sudo docker swarm init
+      #   run: sudo docker swarm init 
       # - name: Start PostgreSQL
       #   run: sudo docker compose -f docker-compose-build-test.yml up postgres -d  
       - name: Building a new version
