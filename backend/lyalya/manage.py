@@ -21,6 +21,7 @@ def wait_for_db(max_attempts=70):
         try:
             conn = psycopg2.connect(dbname=db_config['dbname'], user=db_config['user'], password=db_config['password'], host=db_config['host'], port=db_config['port'])
             conn.close()
+            return
         except Exception as e:
             attempts += 1
             print(f"Not connect to PostgreSQL. att: {attempts}/{max_attempts}")
