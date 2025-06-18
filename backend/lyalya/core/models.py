@@ -52,7 +52,9 @@ class Address(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='addresses'
+        related_name='addresses',
+        null=True,
+        blank=True
     )
     country = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
