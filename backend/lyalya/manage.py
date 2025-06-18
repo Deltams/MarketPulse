@@ -48,16 +48,9 @@ def main():
     final_args = []
     i = 0
     while i < len(sys.argv):
-        if sys.argv[i].startswith("--waitpg"):
-            pass
-        elif i+1 < len(sys.argv) and sys.argv[i+1].startswith("--waitpg"):
-            i += 1
-        else:
+        if not sys.argv[i].startswith("--waitpg"):
             final_args.append(sys.argv[i])
         i += 1
-    print(sys.argv)
-    print()
-    print(final_args)
 
     try:
         from django.core.management import execute_from_command_line
