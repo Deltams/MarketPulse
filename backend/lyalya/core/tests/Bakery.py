@@ -1,5 +1,6 @@
 from model_bakery.recipe import Recipe, foreign_key, seq
-from django.contrib.auth.models import User
+from django.db import models
+from django.contrib.auth.models import User, AbstractUser
 from ..models import User, SellerProfile, BuyerProfile, Brand, Category, Product, Cart, CartItem
 from django.core.files.images import ImageFile
 import os
@@ -14,10 +15,10 @@ def get_test_image():
 """Создание пользователя"""
 user_recipe = Recipe(
     User,
-    username=seq('user'),
-    email=seq('user', suffix='@gmail.com'),
-    password=seq('password'),
-    is_seller=True,
+    username = seq('user'),
+    email = seq('user', suffix='@gmail.com'),
+    password=seq('test1234'),
+    is_seller=False,
     is_buyer=True
 )
 

@@ -13,10 +13,10 @@ class BrandModelTest(TestCase):
     def setUpTestData(cls):
         """Создание тестовых данных"""
 
-        cls.user = user_recipe.make()
+        cls.owner_user = user_recipe.make(is_seller = True)
         
         cls.brand = full_brand_recipe.make(
-            owner=cls.user,
+            owner=cls.owner_user,
             name='Test Brand',
             slug='test-brand',
             description='Test description',
@@ -31,7 +31,7 @@ class BrandModelTest(TestCase):
         self.assertEqual(self.brand.slug, 'test-brand')
         self.assertEqual(self.brand.description, 'Test description')
         self.assertTrue(self.brand.is_verified)
-        self.assertEqual(self.brand.owner, self.user)
+        self.assertEqual(self.brand.owner, self.owner_user)
 
 
     def test_many_to_one_relation_owner(self):
@@ -43,14 +43,13 @@ class BrandModelTest(TestCase):
         self.assertFalse(owner.null)
         self.assertFalse(owner.blank)
 
-        # Test that a user can own multiple brands
         second_brand = full_brand_recipe.make(
-            owner=self.user,
+            owner=self.owner_user,
             name='Second Brand',
             slug='second-brand'
         )
-        self.assertEqual(Brand.objects.filter(owner=self.user).count(), 2)
-        self.assertEqual(second_brand.owner, self.user)
+        self.assertEqual(Brand.objects.filter(owner=self.owner_user).count(), 2)
+        self.assertEqual(second_brand.owner, self.owner_user)
 
 
     def test_str_representation(self):

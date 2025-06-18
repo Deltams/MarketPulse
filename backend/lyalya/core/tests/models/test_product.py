@@ -11,7 +11,7 @@ class ProductModelTest(TestCase):
     def setUpTestData(cls):
         """Создание тестовых данных"""
 
-        cls.user = user_recipe.make(username='Seller')
+        cls.user = user_recipe.make(username='Seller', is_seller = True)
 
         cls.brand = minimal_brand_recipe.make()
 
@@ -40,15 +40,14 @@ class ProductModelTest(TestCase):
         self.assertEqual(self.product.price, 100.99)
         self.assertEqual(self.product.is_active, False)
         self.assertEqual(self.product.seller, self.user)
-        # self.assertEqual(self.image)
 
 
-    # def test_seller_relation(self):
-    #     """Тест связи с продавцом"""
+    def test_seller_relation(self):
+        """Тест связи с продавцом"""
 
-    #     seller = self.product._meta.get_field('brand')
-    #     self.assertEqual(seller.remote_field.model, Brand)
-    #     self.assertEqual(seller.remote_field.on_delete.__name__, 'CASCADE')
+        seller = self.product._meta.get_field('seller')
+        self.assertEqual(seller.remote_field.model, User)
+        self.assertEqual(seller.remote_field.on_delete.__name__, 'CASCADE')
 
 
     def test_brand_relation(self):
@@ -141,3 +140,8 @@ class ProductModelTest(TestCase):
             minimal_product_recipe.make(
                 price=-10.00
             )    
+
+    def test_str_representation(self):
+        """Тест строкового представления"""
+
+        self.assertEqual(str(self.product),'Test Product')

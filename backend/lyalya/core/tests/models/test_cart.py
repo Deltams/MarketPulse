@@ -10,7 +10,7 @@ class CartModelTest(TestCase):
     def setUpTestData(cls):
         """Создание тестовых данных"""
 
-        cls.user = user_recipe.make()
+        cls.user = user_recipe.make(email = 'test@gmail.com')
 
         cls.cart = cart_recipe.make(user=cls.user)
 
@@ -39,3 +39,9 @@ class CartModelTest(TestCase):
                 raise
         
         self.assertEqual(Cart.objects.count(), 1)
+
+
+    def test_str_representation(self):
+        """Тест строкового представления"""
+
+        self.assertEqual(str(self.cart),'Cart test@gmail.com')
