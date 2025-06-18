@@ -13,6 +13,13 @@ from django.core.exceptions import ValidationError
 
 class User(AbstractUser):
     email = models.EmailField(unique=True)
+    address = models.ForeignKey(
+        'Address',
+        on_delete=models.SET_NULL,
+        related_name='default_billing',
+        null=True,
+        blank=True
+    )
     is_seller = models.BooleanField(default=False)
     is_buyer = models.BooleanField(default=True)
     USERNAME_FIELD = 'email'
@@ -39,6 +46,17 @@ class BuyerProfile(models.Model):
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name='buyer_profile'
     )
+
+
+class Address(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='addresses'
+    )
+    country = models.CharField(max_length=100)
+    city = models.CharField(max_length=100)
+    street = models.CharField(max_length=255)
 
 
 class Brand(models.Model):
@@ -170,11 +188,52 @@ class CartItem(models.Model):
         validators=[MinValueValidator(1)]
     )
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=['cart', 'product'],
-                name='unique_product_in_cart'
-            )
-        ]
+    # class Meta:
+    #     constraints = [
+    #         models.UniqueConstraint(
+    #             fields=['cart', 'product'],
+    #             name='unique_product_in_cart'
+    #         )
+    #     ]
 
+
+class Order(models.Model):
+    buyer = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='orders_as_buyer'
+    )
+    address = models.ForeignKey(
+        Address,
+        on_delete=models.PROTECT,
+        related_name='billing_orders',
+        null=True,
+        blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        related_name='items'
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.SET_NULL,
+        null=True
+    )
+    seller = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='orders_as_seller'
+    )
+    quantity = models.PositiveIntegerField()
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(0)]
+    )

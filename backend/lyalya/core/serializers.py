@@ -3,7 +3,9 @@ from .models import (
     User,
     SellerProfile,
     BuyerProfile,
-    Brand, Category, Product, Cart, CartItem)
+    Brand, Category, Product, Cart, CartItem,
+    Address, Order, OrderItem
+)
 
 
 # class UserProfileSerializer(serializers.ModelSerializer):
@@ -28,6 +30,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+
 
 class BrandSerializer(serializers.ModelSerializer):
     class Meta:
@@ -90,4 +93,22 @@ class CartSerializer(serializers.ModelSerializer):
 class CartItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = CartItem
+        fields = '__all__'
+
+
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = '__all__'
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = '__all__'
+
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderItem
         fields = '__all__'

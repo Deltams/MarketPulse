@@ -9,11 +9,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
-from .models import Brand, Category, Product, Cart, CartItem
+from .models import Brand, Category, Product, Cart, CartItem, Address, Order, OrderItem
 from .serializers import (
     CategorySerializer, RegisterSerializer, ProductSerializer, BrandSerializer, UserSerializer,
     CartSerializer,
-    CartItemSerializer
+    CartItemSerializer,
+    AddressSerializer, OrderSerializer, OrderItemSerializer
 )
 
 class RegisterView(APIView):
@@ -235,3 +236,33 @@ class CartItemListCreateView(generics.ListCreateAPIView):
 class CartItemRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
+
+
+class AddressListCreateView(generics.ListCreateAPIView):
+    queryset = Address.objects.all()
+    serializer_class = AddressSerializer
+
+
+class AddressRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Address.objects.all()
+    serializer_class = AddressSerializer
+
+
+class OrderListCreateView(generics.ListCreateAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+
+
+class OrderRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+
+
+class OrderItemListCreateView(generics.ListCreateAPIView):
+    queryset = OrderItem.objects.all()
+    serializer_class = OrderItemSerializer
+
+
+class OrderItemRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = OrderItem.objects.all()
+    serializer_class = OrderItemSerializer

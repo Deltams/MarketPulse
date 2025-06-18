@@ -36,5 +36,21 @@ urlpatterns = [
 
     path('api/v1/cart_items/', views.CartItemListCreateView.as_view()),
     path('api/v1/cart_items/<int:pk>/',
-         views.CartItemRetrieveUpdateDestroyView.as_view()),
+         views.CartItemRetrieveUpdateDestroyView.as_view()
+         ),
+
+    path('api/v1/address/', views.AddressListCreateView.as_view()),
+    path('api/v1/address/<int:pk>/',
+         views.AddressRetrieveUpdateDestroyView.as_view()
+         ),
+
+    path('api/v1/order/', views.OrderListCreateView.as_view()),
+    path('api/v1/order/<int:pk>/',
+         views.OrderRetrieveUpdateDestroyView.as_view()
+         ),
+
+    path('api/v1/order_items/', views.OrderItemListCreateView.as_view()),
+    path('api/v1/order_items/<int:pk>/',
+         views.OrderItemRetrieveUpdateDestroyView.as_view()
+         ),
 ]
