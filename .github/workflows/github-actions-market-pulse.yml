@@ -46,6 +46,8 @@ jobs:
         run: python ./backend/lyalya/manage.py test core.tests.api_view --settings=lyalya.settings_test
       - name: Run Tests HTML View
         run: python ./backend/lyalya/manage.py test core.tests.html_view --settings=lyalya.settings_test
+      - name: Run Tests Integration
+        run: python ./backend/lyalya/manage.py test core.tests.integration --settings=lyalya.settings_test
   deploy:
     needs: [build, test]
     runs-on: self-hosted
