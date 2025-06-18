@@ -53,7 +53,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
       - name: Cleaning up unused images
-        run: sudo docker system prune -f # -f пропуск вопроса [y/N] (можно -af тогда ВСЕ лишнее удалим) 
+        run: sudo docker system prune -f # -f пропуск вопроса [y/N] (можно -af тогда ВСЕ лишнее удалим)  
       - name: Building a new version
         run: sudo docker compose -f docker-compose.yml build # --no-cache
       - name: Delete last backend
