@@ -11,13 +11,21 @@
         <v-card class="pa-6">
           <v-icon size="64" color="grey" class="mb-4">mdi-cart-off</v-icon>
           <h2 class="text-h5 mb-4">Корзина пуста</h2>
-          <p class="text-body-1 mb-6">Добавьте товары в корзину, чтобы оформить заказ</p>
+          <p class="text-body-1 mb-6">Добавьте товары или услуги в корзину, чтобы оформить заказ</p>
           <v-btn
             color="primary"
             to="/products"
             size="large"
+            class="mr-4"
           >
             Перейти к товарам
+          </v-btn>
+          <v-btn
+            color="secondary"
+            to="/services"
+            size="large"
+          >
+            Перейти к услугам
           </v-btn>
         </v-card>
       </v-col>
@@ -30,26 +38,41 @@
             <v-list>
               <v-list-item
                 v-for="item in cartStore.items"
-                :key="item.productId"
+                :key="`${item.type}-${item.productId || item.serviceId}`"
                 class="cart-item"
               >
                 <template v-slot:prepend>
                   <v-img
-                    :src="item.imageUrl || '/placeholder.png'"
+                    v-if="item.type === 'product' && (item.imageUrl || item.product_image)"
+                    :src="item.imageUrl || item.product_image || '/placeholder.png'"
                     :alt="item.name"
                     width="100"
                     height="100"
                     cover
                     class="rounded"
                   ></v-img>
+                  <div
+                    v-else
+                    class="service-placeholder rounded d-flex align-center justify-center"
+                    style="width: 100px; height: 100px; background: #f5f5f5;"
+                  >
+                    <v-icon size="48" color="grey">mdi-cog</v-icon>
+                  </div>
                 </template>
 
                 <v-list-item-title class="text-h6 mb-2">
                   {{ item.name }}
+                  <v-chip
+                    :color="item.type === 'product' ? 'primary' : 'secondary'"
+                    size="small"
+                    class="ml-2"
+                  >
+                    {{ item.type === 'product' ? 'Товар' : 'Услуга' }}
+                  </v-chip>
                 </v-list-item-title>
 
                 <v-list-item-subtitle class="text-subtitle-1 mb-4">
-                  {{ formatPrice(item.price) }}
+                  {{ formatPrice(getItemPrice(item)) }}
                 </v-list-item-subtitle>
 
                 <template v-slot:append>
@@ -57,7 +80,7 @@
                     <v-btn
                       icon
                       variant="text"
-                      @click="updateQuantity(item.productId, item.quantity - 1)"
+                      @click="updateQuantity(item, item.quantity - 1)"
                       :disabled="item.quantity <= 1"
                     >
                       <v-icon>mdi-minus</v-icon>
@@ -68,7 +91,7 @@
                     <v-btn
                       icon
                       variant="text"
-                      @click="updateQuantity(item.productId, item.quantity + 1)"
+                      @click="updateQuantity(item, item.quantity + 1)"
                     >
                       <v-icon>mdi-plus</v-icon>
                     </v-btn>
@@ -78,7 +101,7 @@
                       variant="text"
                       color="error"
                       class="ml-4"
-                      @click="cartStore.removeFromCart(item.productId)"
+                      @click="removeFromCart(item)"
                     >
                       <v-icon>mdi-delete</v-icon>
                     </v-btn>
@@ -97,7 +120,7 @@
 
             <v-card-text>
               <div class="d-flex justify-space-between mb-2">
-                <span>Товары ({{ cartStore.totalItems }})</span>
+                <span>Товары и услуги ({{ cartStore.totalItems }})</span>
                 <span>{{ formatPrice(cartStore.totalPrice) }}</span>
               </div>
               <v-divider class="my-4"></v-divider>
@@ -136,10 +159,24 @@ const formatPrice = (price: number) => {
   }).format(price)
 }
 
-const updateQuantity = (productId: number, quantity: number) => {
-  if (quantity > 0) {
-    cartStore.updateQuantity(productId, quantity)
+const getItemPrice = (item: any) => {
+  if (item.type === 'product') {
+    return item.product_price || item.price
+  } else {
+    return item.service_price || item.price
   }
+}
+
+const updateQuantity = (item: any, quantity: number) => {
+  if (quantity > 0) {
+    const itemId = item.type === 'product' ? item.productId : item.serviceId
+    cartStore.updateQuantity(itemId, quantity, item.type)
+  }
+}
+
+const removeFromCart = (item: any) => {
+  const itemId = item.type === 'product' ? item.productId : item.serviceId
+  cartStore.removeFromCart(itemId, item.type)
 }
 
 const checkout = () => {
@@ -159,6 +196,6 @@ const checkout = () => {
 
 .sticky-card {
   position: sticky;
-  top: 24px;
+  top: 20px;
 }
 </style> 

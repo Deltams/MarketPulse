@@ -42,9 +42,11 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const response = await axios.post('/api/v1/auth/token', { email, password });
       const { access, refresh } = response.data;
-      setAuth({ email, role: 'buyer' }, access);
+      // Временно создаем пользователя с базовыми данными
+      const user = { id: 1, email, name: email, role: 'buyer' as const };
+      setAuth(user, access);
       localStorage.setItem('refreshToken', refresh);
-      return { email, role: 'buyer' };
+      return user;
     } catch (error) {
       clearAuth();
       throw error;
@@ -82,6 +84,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   return {
     user: computed(() => state.value.user),
+    token: computed(() => state.value.token),
     isAuthenticated,
     isSeller,
     isAdmin,

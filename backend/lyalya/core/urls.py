@@ -24,6 +24,9 @@ urlpatterns = [
     path('api/v1/productlist/', views.ProductAPIView.as_view()),
     path('api/v1/productlist/<int:pk>/', views.ProductDetailAPIView.as_view()),
 
+    path('api/v1/servicelist/', views.ServiceAPIView.as_view()),
+    path('api/v1/servicelist/<int:pk>/', views.ServiceDetailAPIView.as_view()),
+
     path('api/v1/brandlist/', views.BrandAPIView.as_view()),
     path('api/v1/brandlist/<int:pk>/', views.BrandDetailAPIView.as_view()),
 

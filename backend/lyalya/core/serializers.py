@@ -3,7 +3,7 @@ from .models import (
     User,
     SellerProfile,
     BuyerProfile,
-    Brand, Category, Product, Cart, CartItem,
+    Brand, Category, Product, Service, Cart, CartItem,
     Address, Order, OrderItem
 )
 
@@ -45,14 +45,15 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    seller_name = serializers.CharField(source='seller.user.username', read_only=True)
+    seller_name = serializers.CharField(source='seller.username', read_only=True)
     brand_name = serializers.CharField(source='brand.name', read_only=True)
+    brand_is_verified = serializers.BooleanField(source='brand.is_verified', read_only=True)
     category_name = serializers.CharField(source='category.name', read_only=True)
 
     class Meta:
         model = Product
         fields = ['id', 'name', 'slug', 'description', 'price', 'image', 
-                 'is_active', 'brand', 'brand_name', 'category', 'category_name',
+                 'is_active', 'brand', 'brand_name', 'brand_is_verified', 'category', 'category_name',
                  'seller', 'seller_name', 'created_at', 'updated_at']
         read_only_fields = ['seller', 'created_at', 'updated_at']
 
@@ -90,10 +91,49 @@ class CartSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class ServiceSerializer(serializers.ModelSerializer):
+    seller_name = serializers.CharField(source='seller.username', read_only=True)
+    category_name = serializers.CharField(source='category.name', read_only=True)
+
+    class Meta:
+        model = Service
+        fields = ['id', 'name', 'slug', 'description', 'price', 
+                 'is_active', 'category', 'category_name',
+                 'seller', 'seller_name', 'created_at', 'updated_at']
+        read_only_fields = ['seller', 'created_at', 'updated_at']
+
+    def validate_price(self, value):
+        if value < 0:
+            raise serializers.ValidationError("Цена не может быть отрицательной")
+        return value
+
+
 class CartItemSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source='product.name', read_only=True)
+    service_name = serializers.CharField(source='service.name', read_only=True)
+    product_price = serializers.DecimalField(source='product.price', max_digits=10, decimal_places=2, read_only=True)
+    service_price = serializers.DecimalField(source='service.price', max_digits=10, decimal_places=2, read_only=True)
+    product_image = serializers.CharField(source='product.image', read_only=True)
+
     class Meta:
         model = CartItem
-        fields = '__all__'
+        fields = ['id', 'cart', 'item_type', 'product', 'service', 'quantity', 
+                 'product_name', 'service_name', 'product_price', 'service_price', 'product_image']
+
+    def validate(self, data):
+        item_type = data.get('item_type', 'product')
+        product = data.get('product')
+        service = data.get('service')
+
+        if item_type == 'product' and not product:
+            raise serializers.ValidationError("Для товара должно быть указано поле product")
+        elif item_type == 'service' and not service:
+            raise serializers.ValidationError("Для услуги должно быть указано поле service")
+        
+        if product and service:
+            raise serializers.ValidationError("Нельзя указывать одновременно товар и услугу")
+
+        return data
 
 
 class AddressSerializer(serializers.ModelSerializer):

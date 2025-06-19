@@ -6,7 +6,7 @@
         color="primary"
         size="64"
       ></v-progress-circular>
-      <div class="text-h6 mt-4">Загрузка товара...</div>
+      <div class="text-h6 mt-4">Загрузка услуги...</div>
     </div>
 
     <div v-else-if="error">
@@ -20,27 +20,28 @@
     </div>
 
     <template v-else>
-      <v-card class="product-card">
-        <v-img
-          :src="product.image"
-          height="400"
-          cover
-          class="align-end"
-        >
-          <v-card-title class="text-white text-shadow">
-            {{ product.name }}
-          </v-card-title>
-        </v-img>
-
+      <v-card class="service-card">
         <v-card-text>
-          <div class="text-subtitle-1 text-primary mb-2">
-            {{ product.brand_name || product.brand?.name || 'Без бренда' }}
+          <div class="service-header">
+            <div class="service-title">
+              {{ service.name }}
+            </div>
+            <div class="service-price">
+              {{ formatPrice(service.price) }} ₽
+            </div>
           </div>
-          <div class="text-h4 font-weight-bold mb-4">
-            {{ product.price }} ₽
+          
+          <div class="service-description">
+            {{ service.description }}
           </div>
-          <div class="text-body-1 mb-6">
-            {{ product.description }}
+          
+          <div class="service-meta">
+            <div class="service-category">
+              <strong>Категория:</strong> {{ service.category_name || 'Без категории' }}
+            </div>
+            <div class="service-seller">
+              <strong>Продавец:</strong> {{ service.seller_name }}
+            </div>
           </div>
         </v-card-text>
 
@@ -56,12 +57,12 @@
           </v-btn>
 
           <!-- Кнопки для продавца -->
-          <template v-if="isProductOwner">
+          <template v-if="isServiceOwner">
             <v-btn
               color="primary"
               variant="outlined"
               block
-              @click="editProduct"
+              @click="editService"
               class="mb-2"
             >
               Редактировать
@@ -85,7 +86,7 @@
             Подтверждение удаления
           </v-card-title>
           <v-card-text>
-            Вы уверены, что хотите удалить этот товар? Это действие нельзя отменить.
+            Вы уверены, что хотите удалить эту услугу? Это действие нельзя отменить.
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
@@ -99,7 +100,7 @@
             <v-btn
               color="error"
               variant="text"
-              @click="deleteProduct"
+              @click="deleteService"
             >
               Удалить
             </v-btn>
@@ -113,6 +114,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useServiceStore } from '@/stores/serviceStore'
 import { useCartStore } from '@/stores/cartStore'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificationStore } from '@/stores/notificationStore'
@@ -120,27 +122,28 @@ import api from '@/api/config'
 
 const route = useRoute()
 const router = useRouter()
+const serviceStore = useServiceStore()
 const cartStore = useCartStore()
 const authStore = useAuthStore()
 const notificationStore = useNotificationStore()
 
-const product = ref(null)
+const service = ref(null)
 const loading = ref(true)
 const error = ref('')
 const deleteDialog = ref(false)
 
-const isProductOwner = computed(() => {
-  if (!product.value || !authStore.isAuthenticated) return false
-  return product.value.brand?.id === authStore.user?.brand_id
+const isServiceOwner = computed(() => {
+  if (!service.value || !authStore.isAuthenticated) return false
+  return service.value.seller === authStore.user?.id
 })
 
-const fetchProduct = async () => {
+const fetchService = async () => {
   try {
-    const response = await api.get(`/productlist/${route.params.id}/`)
-    product.value = response.data
+    const response = await api.get(`/servicelist/${route.params.id}/`)
+    service.value = response.data
   } catch (err) {
-    error.value = 'Не удалось загрузить товар'
-    console.error('Error fetching product:', err)
+    error.value = 'Не удалось загрузить услугу'
+    console.error('Error fetching service:', err)
   } finally {
     loading.value = false
   }
@@ -149,54 +152,101 @@ const fetchProduct = async () => {
 const addToCart = () => {
   if (!authStore.isAuthenticated) {
     notificationStore.addNotification(
-      'Для добавления товаров в корзину необходимо войти в систему',
+      'Для добавления услуг в корзину необходимо войти в систему',
       'warning',
       5000
     )
     return
   }
   cartStore.addToCart({
-    id: product.value.id,
-    name: product.value.name,
-    price: product.value.price,
-    imageUrl: product.value.image,
-    type: 'product'
+    id: service.value.id,
+    name: service.value.name,
+    price: service.value.price,
+    type: 'service'
   })
 }
 
-const editProduct = () => {
-  router.push(`/products/${product.value.id}/edit`)
+const editService = () => {
+  router.push(`/services/${service.value.id}/edit`)
 }
 
 const confirmDelete = () => {
   deleteDialog.value = true
 }
 
-const deleteProduct = async () => {
+const deleteService = async () => {
   try {
-    await api.delete(`/productlist/${product.value.id}/`)
-    router.push('/catalog')
+    await api.delete(`/servicelist/${service.value.id}/`)
+    router.push('/services')
   } catch (err) {
-    error.value = 'Не удалось удалить товар'
-    console.error('Error deleting product:', err)
+    error.value = 'Не удалось удалить услугу'
+    console.error('Error deleting service:', err)
   }
   deleteDialog.value = false
 }
 
+const formatPrice = (price: number) => {
+  return new Intl.NumberFormat('ru-RU').format(price)
+}
+
 onMounted(() => {
-  fetchProduct()
+  fetchService()
 })
 </script>
 
 <style scoped>
-.product-card {
+.service-card {
   max-width: 800px;
   margin: 0 auto;
   border-radius: 16px;
   overflow: hidden;
 }
 
-.text-shadow {
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+.service-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
 }
-</style>
+
+.service-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #222;
+  line-height: 1.2;
+  flex: 1;
+  margin-right: 20px;
+}
+
+.service-price {
+  color: #1976d2;
+  font-size: 2.5rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.service-description {
+  color: #666;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.service-meta {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.service-category,
+.service-seller {
+  color: #555;
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
+.service-seller {
+  font-weight: 500;
+}
+</style> 

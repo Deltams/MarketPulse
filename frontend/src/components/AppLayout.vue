@@ -18,7 +18,10 @@
             Бренды
           </v-btn>
           <v-btn to="/products" variant="text" color="white">
-            Товары/Услуги?
+            Товары
+          </v-btn>
+          <v-btn to="/services" variant="text" color="white">
+            Услуги
           </v-btn>
           <v-btn to="/about" variant="text" color="white">
             О нас
@@ -48,9 +51,22 @@
       <v-list>
         <v-list-item to="/categories" title="Категории"></v-list-item>
         <v-list-item to="/brands" title="Бренды"></v-list-item>
-        <v-list-item to="/products" title="Товары/Услуги?"></v-list-item>
+        <v-list-item to="/products" title="Каталог"></v-list-item>
+        <v-list-item to="/services" title="Услуги"></v-list-item>
         <v-list-item to="/about" title="О нас"></v-list-item>
         <v-divider></v-divider>
+        <v-list-item @click="handleCartClick" title="Корзина">
+          <template v-slot:prepend>
+            <v-badge
+              :content="cartStore.totalItems"
+              :model-value="cartStore.totalItems > 0"
+              color="error"
+              location="top end"
+            >
+              <v-icon>mdi-cart</v-icon>
+            </v-badge>
+          </template>
+        </v-list-item>
         <v-list-item to="/login" title="Войти"></v-list-item>
         <v-list-item v-if="isAuthenticated" to="/profile" title="Профиль"></v-list-item>
       </v-list>
@@ -65,17 +81,39 @@
     <v-footer app color="primary" class="text-center d-flex justify-center">
       <span class="text-white">&copy; {{ new Date().getFullYear() }} MarketPulse. Все права защищены.</span>
     </v-footer>
+
+    <!-- Система уведомлений -->
+    <NotificationSystem />
   </v-app>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import CartWidget from '@/components/cart/CartWidget.vue'
+import NotificationSystem from '@/components/common/NotificationSystem.vue'
 import { useAuthStore } from '@/stores/auth'
+import { useCartStore } from '@/stores/cartStore'
+import { useNotificationStore } from '@/stores/notificationStore'
 
+const router = useRouter()
 const drawer = ref(false)
 const authStore = useAuthStore()
+const cartStore = useCartStore()
+const notificationStore = useNotificationStore()
 const isAuthenticated = computed(() => authStore.isAuthenticated)
+
+const handleCartClick = () => {
+  if (authStore.isAuthenticated) {
+    router.push('/cart')
+  } else {
+    notificationStore.addNotification(
+      'Для просмотра корзины необходимо войти в систему',
+      'warning',
+      5000
+    )
+  }
+}
 </script>
 
 <style scoped>
@@ -84,7 +122,7 @@ const isAuthenticated = computed(() => authStore.isAuthenticated)
 }
 
 .v-container {
-  max-width: 1920px !important;
+  max-width: none !important;
   padding: 0 24px !important;
 }
 

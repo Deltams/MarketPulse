@@ -1,8 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
+import { useNotificationStore } from '../stores/notificationStore';
 import HomeView from '../views/HomeView.vue';
 import CatalogView from '../views/CatalogView.vue';
 import ProductView from '../views/ProductView.vue';
+import ServiceView from '../views/ServiceView.vue';
+import ServicesView from '../views/ServicesView.vue';
 import LoginView from '../views/LoginView.vue';
 import AboutView from '../views/AboutView.vue';
 import CategoriesView from '../views/CategoriesView.vue';
@@ -25,6 +28,8 @@ const routes = [
   { path: '/brands/:id', name: 'brand', component: BrandView },
   { path: '/products', name: 'products', component: ProductsView },
   { path: '/products/:id', name: 'product', component: ProductView },
+  { path: '/services', name: 'services', component: ServicesView },
+  { path: '/services/:id', name: 'service', component: ServiceView },
   { path: '/login', name: 'login', component: LoginView, meta: { guest: true } },
   { path: '/register', name: 'register', component: () => import('../views/RegisterView.vue'), meta: { guest: true } },
   { path: '/profile', name: 'profile', component: UserProfileView },
@@ -38,10 +43,14 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
+  scrollBehavior() {
+    return { top: 0 };
+  }
 });
 
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
+  const notificationStore = useNotificationStore();
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   const requiresSeller = to.matched.some(record => record.meta.requiresSeller);
   const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin);
@@ -52,10 +61,25 @@ router.beforeEach(async (to, from, next) => {
   }
 
   if (requiresAuth && !authStore.isAuthenticated) {
+    notificationStore.addNotification(
+      'Для доступа к этой странице необходимо войти в систему',
+      'warning',
+      5000
+    );
     next({ name: 'home' });
   } else if (requiresSeller && !authStore.isSeller) {
+    notificationStore.addNotification(
+      'Для доступа к этой странице необходимы права продавца',
+      'error',
+      5000
+    );
     next({ name: 'home' });
   } else if (requiresAdmin && !authStore.isAdmin) {
+    notificationStore.addNotification(
+      'Для доступа к этой странице необходимы права администратора',
+      'error',
+      5000
+    );
     next({ name: 'home' });
   } else if (isGuestOnly && authStore.isAuthenticated) {
     next({ name: 'home' });

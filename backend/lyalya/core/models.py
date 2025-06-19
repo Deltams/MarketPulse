@@ -183,20 +183,46 @@ class Cart(models.Model):
 
 
 class CartItem(models.Model):
+    ITEM_TYPE_CHOICES = [
+        ('product', 'Товар'),
+        ('service', 'Услуга'),
+    ]
+    
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    item_type = models.CharField(max_length=10, choices=ITEM_TYPE_CHOICES, default='product')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, null=True, blank=True)
     quantity = models.PositiveIntegerField(
         default=1,
         validators=[MinValueValidator(1)]
     )
 
-    # class Meta:
-    #     constraints = [
-    #         models.UniqueConstraint(
-    #             fields=['cart', 'product'],
-    #             name='unique_product_in_cart'
-    #         )
-    #     ]
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['cart', 'product'],
+                name='unique_product_in_cart',
+                condition=models.Q(product__isnull=False)
+            ),
+            models.UniqueConstraint(
+                fields=['cart', 'service'],
+                name='unique_service_in_cart',
+                condition=models.Q(service__isnull=False)
+            )
+        ]
+
+    def clean(self):
+        if self.item_type == 'product' and not self.product:
+            raise ValidationError("Для товара должно быть указано поле product")
+        elif self.item_type == 'service' and not self.service:
+            raise ValidationError("Для услуги должно быть указано поле service")
+        
+        if self.product and self.service:
+            raise ValidationError("Нельзя указывать одновременно товар и услугу")
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
 
 
 class Order(models.Model):

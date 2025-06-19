@@ -242,7 +242,13 @@ function maybeShowProducts() {
 }
 
 const addToCart = (product) => {
-  cartStore.addItem(product)
+  cartStore.addToCart({
+    id: product.id,
+    name: product.name,
+    price: product.price,
+    imageUrl: product.image,
+    type: 'product'
+  })
 }
 
 const SKELETON_COUNT = 4

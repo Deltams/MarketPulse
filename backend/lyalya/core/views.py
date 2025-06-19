@@ -9,12 +9,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
-from .models import Brand, Category, Product, Cart, CartItem, Address, Order, OrderItem
+from .models import Brand, Category, Product, Service, Cart, CartItem, Address, Order, OrderItem
 from .serializers import (
     CategorySerializer, RegisterSerializer, ProductSerializer, BrandSerializer, UserSerializer,
-    CartSerializer,
-    CartItemSerializer,
-    AddressSerializer, OrderSerializer, OrderItemSerializer
+    ServiceSerializer, CartSerializer, CartItemSerializer, AddressSerializer, OrderSerializer, OrderItemSerializer
 )
 
 class RegisterView(APIView):
@@ -266,3 +264,51 @@ class OrderItemListCreateView(generics.ListCreateAPIView):
 class OrderItemRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = OrderItem.objects.all()
     serializer_class = OrderItemSerializer
+
+
+class ServiceAPIView(generics.ListCreateAPIView):
+    serializer_class = ServiceSerializer
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
+
+    def get_queryset(self):
+        queryset = Service.objects.all()
+        
+        # Фильтрация по категориям
+        category_params = {k: v for k, v in self.request.query_params.items() if k.startswith('category_')}
+        if category_params:
+            from django.db.models import Q
+            category_filters = Q()
+            for category_id in category_params.values():
+                try:
+                    category_id = int(category_id)
+                    category_filters |= Q(category_id=category_id)
+                except (ValueError, TypeError):
+                    continue
+            queryset = queryset.filter(category_filters)
+        
+        # Фильтрация по цене
+        min_price = self.request.query_params.get('min_price')
+        max_price = self.request.query_params.get('max_price')
+        if min_price:
+            queryset = queryset.filter(price__gte=min_price)
+        if max_price:
+            queryset = queryset.filter(price__lte=max_price)
+        
+        # Поиск по названию
+        search = self.request.query_params.get('search')
+        if search:
+            queryset = queryset.filter(name__icontains=search)
+        
+        return queryset
+
+    def perform_create(self, serializer):
+        serializer.save(seller=self.request.user)
+
+
+class ServiceDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Service.objects.all()
+    serializer_class = ServiceSerializer
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
+
+    def perform_update(self, serializer):
+        serializer.save(seller=self.request.user)
