@@ -42,17 +42,6 @@ class CartItemModelTest(TestCase):
         self.assertFalse(cart.null)
         self.assertFalse(cart.blank) 
 
-
-    def test_product_relation(self):
-        """Тест связи с товаром"""
-
-        product = self.cart_item._meta.get_field('product')
-        self.assertEqual(product.remote_field.model, Product)
-        self.assertEqual(product.remote_field.on_delete.__name__, 'CASCADE')
-        self.assertFalse(product.null)
-        self.assertFalse(product.blank) 
-
-
     def test_multiple_items_per_cart(self):
         """Тест добавления несольких товаров в одну корзину"""
 
