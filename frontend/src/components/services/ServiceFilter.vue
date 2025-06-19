@@ -1,9 +1,9 @@
 <template>
-  <div class="product-filter">
+  <div class="service-filter">
     <v-card class="filter-card" elevation="2">
       <v-card-title class="filter-title">
         <v-icon class="mr-2">mdi-filter</v-icon>
-        Фильтры товаров
+        Фильтры услуг
       </v-card-title>
       
       <v-card-text class="filter-content">
@@ -12,7 +12,7 @@
           <v-col class="filter-col" style="width: 320px; min-width: 260px;">
             <v-text-field
               v-model="filters.search"
-              placeholder="Поиск товаров"
+              placeholder="Поиск услуг"
               prepend-inner-icon="mdi-magnify"
               variant="outlined"
               density="compact"
@@ -24,13 +24,13 @@
           </v-col>
           
           <!-- Категория -->
-          <v-col v-if="!hideCategorySelect" class="filter-col" style="width: 320px; min-width: 260px;">
+          <v-col class="filter-col" style="width: 320px; min-width: 260px;">
             <v-select
               v-model="filters.category"
-              :items="Array.isArray(categories) ? categories : []"
+              :items="categories"
               item-title="name"
               item-value="id"
-              placeholder="Категория"
+              placeholder="Категория услуг"
               prepend-inner-icon="mdi-tag"
               variant="outlined"
               density="compact"
@@ -78,7 +78,7 @@
                 :min="0"
                 :max="999999"
                 :step="100"
-                color="primary"
+                color="#9c27b0"
                 track-color="grey-lighten-2"
                 @update:model-value="applyFilters"
                 @start="handlePriceSliderStart"
@@ -148,55 +148,18 @@ interface Category {
   name: string
 }
 
-interface Brand {
-  id: number
-  name: string
-}
-
-const props = defineProps({
-  initialCategoryId: {
-    type: Number,
-    default: null
-  },
-  hideCategorySelect: {
-    type: Boolean,
-    default: false
-  },
-  hideBrandSelect: {
-    type: Boolean,
-    default: false
-  },
-  categories: {
-    type: Array,
-    default: () => []
-  },
-  brands: {
-    type: Array,
-    default: () => []
-  },
-  filters: {
-    type: Object,
-    default: () => ({})
-  }
-})
-
 const emit = defineEmits(['filter-change', 'price-slider-start', 'price-slider-end'])
 
 const filters = reactive<Filters>({
   search: '',
-  category: props.hideCategorySelect ? null : props.initialCategoryId,
-  brand: null,
+  category: null,
   priceSort: null,
-  priceRange: [0, 999999],
-  ...props.filters
+  priceRange: [0, 999999]
 })
 
-const categories = ref<Category[]>(Array.isArray(props.categories) ? props.categories as Category[] : [])
-const brands = ref<Brand[]>(Array.isArray(props.brands) ? props.brands as Brand[] : [])
+const categories = ref<Category[]>([])
 const loadingCategories = ref(false)
-const loadingBrands = ref(false)
 const categoryMenuOpen = ref(false)
-const brandMenuOpen = ref(false)
 const priceSortMenuOpen = ref(false)
 
 // Поля для ручного ввода цен
@@ -209,40 +172,16 @@ const priceOptions = [
 ]
 
 const fetchCategories = async () => {
-  // Если категории уже переданы через props, не загружаем их
-  if (Array.isArray(props.categories) && props.categories.length > 0) {
-    categories.value = props.categories as Category[]
-    return
-  }
-  
   loadingCategories.value = true
   try {
-    const response = await api.get('/categories/')
+    const response = await api.get('/service-categories/')
     categories.value = response.data.results
   } catch (error) {
-    console.error('Error fetching categories:', error)
+    console.error('Error fetching service categories:', error)
+    // Если не удалось загрузить категории, используем пустой массив
     categories.value = []
   } finally {
     loadingCategories.value = false
-  }
-}
-
-const fetchBrands = async () => {
-  // Если бренды уже переданы через props, не загружаем их
-  if (Array.isArray(props.brands) && props.brands.length > 0) {
-    brands.value = props.brands as Brand[]
-    return
-  }
-  
-  loadingBrands.value = true
-  try {
-    const response = await api.get('/brandlist/')
-    brands.value = response.data.results || response.data
-  } catch (error) {
-    console.error('Error fetching brands:', error)
-    brands.value = []
-  } finally {
-    loadingBrands.value = false
   }
 }
 
@@ -335,12 +274,11 @@ watch(filters, () => {
 
 onMounted(() => {
   fetchCategories()
-  fetchBrands()
 })
 </script>
 
 <style scoped>
-.product-filter {
+.service-filter {
   width: 100%;
 }
 
@@ -351,7 +289,7 @@ onMounted(() => {
 }
 
 .filter-title {
-  background: linear-gradient(90deg, #1976d2 0%, #42a5f5 100%);
+  background: linear-gradient(90deg, #9c27b0 0%, #673ab7 100%);
   color: white;
   border-radius: 12px 12px 0 0;
   padding: 1rem 1.5rem;
@@ -474,7 +412,7 @@ onMounted(() => {
   background: #fff;
 }
 :deep(.custom-field .v-field) {
-  border: 2px solid #1976d2 !important;
+  border: 2px solid #9c27b0 !important;
   border-radius: 8px;
   box-shadow: none !important;
   background: #fff;
@@ -483,8 +421,8 @@ onMounted(() => {
   max-height: 40px !important;
 }
 :deep(.custom-field .v-field--focused) {
-  border-color: #1976d2;
-  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
+  border-color: #9c27b0;
+  box-shadow: 0 0 0 2px rgba(156, 39, 176, 0.1);
 }
 :deep(.custom-field .v-field__input) {
   padding-top: 6px !important;
@@ -500,14 +438,14 @@ onMounted(() => {
   letter-spacing: 0.02em;
 }
 :deep(.custom-field .v-field--focused .v-label) {
-  color: #1976d2 !important;
+  color: #9c27b0 !important;
 }
 :deep(.custom-field .v-icon) {
   color: #6b7280;
   opacity: 0.8;
 }
 :deep(.custom-field .v-field--focused .v-icon) {
-  color: #1976d2;
+  color: #9c27b0;
 }
 :deep(.v-menu .v-list .v-list-item-title) {
   color: #222 !important;
@@ -540,11 +478,11 @@ onMounted(() => {
   background: #fff !important;
 }
 :deep(.v-menu .v-list .v-list-item-title) {
-  color: #1976d2 !important;
+  color: #9c27b0 !important;
   opacity: 1 !important;
 }
 :deep(.v-menu .v-list .v-list-item) {
-  color: #1976d2 !important;
+  color: #9c27b0 !important;
   opacity: 1 !important;
 }
 
@@ -570,7 +508,7 @@ onMounted(() => {
 
 /* Стили для полей ввода цен */
 :deep(.price-input .v-field) {
-  border: 2px solid #1976d2 !important;
+  border: 2px solid #9c27b0 !important;
   border-radius: 8px;
   box-shadow: none !important;
   background: #fff;
@@ -579,8 +517,8 @@ onMounted(() => {
   max-height: 40px !important;
 }
 :deep(.price-input .v-field--focused) {
-  border-color: #1976d2;
-  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
+  border-color: #9c27b0;
+  box-shadow: 0 0 0 2px rgba(156, 39, 176, 0.1);
 }
 :deep(.price-input .v-field__input) {
   padding-top: 0px !important;
@@ -599,7 +537,7 @@ onMounted(() => {
   letter-spacing: 0.02em;
 }
 :deep(.price-input .v-field--focused .v-label) {
-  color: #1976d2 !important;
+  color: #9c27b0 !important;
 }
 :deep(.price-input .v-field__suffix) {
   color: #6b7280;

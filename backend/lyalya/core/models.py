@@ -143,6 +143,13 @@ class Service(models.Model):
         related_name='services_offered',
         limit_choices_to={'is_seller': True}
     )
+    brand = models.ForeignKey(
+        Brand,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='services'
+    )
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,

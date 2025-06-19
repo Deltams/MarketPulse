@@ -140,10 +140,12 @@
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import { useNotificationStore } from '../stores/notificationStore'
 
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
+const notificationStore = useNotificationStore()
 
 const form = ref()
 const loading = ref(false)
@@ -174,11 +176,25 @@ const handleSubmit = async () => {
     await authStore.register(userData)
     const redirectPath = route.query.redirect as string || '/'
     router.push(redirectPath)
-  } catch (error) {
+  } catch (err) {
+    const error = err as any;
     if (error.response?.data) {
       const errors = error.response.data
+      if (errors.email && errors.email[0].includes('существует')) {
+        notificationStore.addNotification('Пользователь с таким email уже существует.', 'error')
+      } else if (typeof errors === 'object') {
+        // Показываем первую ошибку из других полей
+        const firstField = Object.keys(errors)[0]
+        if (firstField && errors[firstField][0]) {
+          notificationStore.addNotification(errors[firstField][0], 'error')
+        }
+      } else {
+        notificationStore.addNotification('Ошибка регистрации. Попробуйте позже.', 'error')
+      }
       console.error('Registration error:', errors)
       console.error('Registration error:', error);
+    } else {
+      notificationStore.addNotification('Ошибка регистрации. Попробуйте позже.', 'error')
     }
   } finally {
     loading.value = false

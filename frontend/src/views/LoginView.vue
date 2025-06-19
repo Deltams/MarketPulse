@@ -1,52 +1,71 @@
 <template>
-  <v-container class="fill-height">
-    <v-row justify="center" align="center" class="fill-height">
-      <v-col cols="14" sm="14" md="6" lg="12" xl="4">
-        <v-card class="elevation-12 login-card mx-auto">
-          <v-card-title class="text-h5 text-center pt-6">
-            Вход в систему
-          </v-card-title>
+  <v-container class="d-flex justify-center">
+    <v-card class="login-card" elevation="2" hover>
+      <div class="login-header">
+        <h1 class="text-h4 font-weight-bold mb-2">Вход в систему</h1>
+        <p class="text-subtitle-1 text-medium-emphasis">Добро пожаловать!</p>
+      </div>
 
-          <v-card-text>
-            <BaseForm
-              ref="form"
+      <v-form ref="form" @submit.prevent="handleSubmit" class="login-form">
+        <v-row>
+          <v-col cols="12">
+            <v-text-field
+              v-model="formData.email"
+              placeholder="Email"
+              type="email"
+              :rules="[
+                v => !!v || 'Обязательное поле',
+                v => /.+@.+\..+/.test(v) || 'Некорректный email'
+              ]"
+              variant="outlined"
+              density="comfortable"
+              class="rounded-lg custom-field"
+              prepend-inner-icon="mdi-email"
+              hide-details="auto"
+            />
+          </v-col>
+
+          <v-col cols="12">
+            <v-text-field
+              v-model="formData.password"
+              placeholder="Пароль"
+              :type="showPassword ? 'text' : 'password'"
+              :rules="[
+                v => !!v || 'Обязательное поле',
+                v => v.length >= 6 || 'Минимум 6 символов'
+              ]"
+              variant="outlined"
+              density="comfortable"
+              class="rounded-lg custom-field"
+              prepend-inner-icon="mdi-lock"
+              :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+              @click:append-inner="showPassword = !showPassword"
+              hide-details="auto"
+            />
+          </v-col>
+
+          <v-col cols="12">
+            <v-btn
+              color="primary"
+              type="submit"
+              block
+              size="large"
               :loading="loading"
-              submit-text="Войти"
-              @submit="handleSubmit"
-              @cancel="$router.push('/register')"
+              class="login-button"
             >
-              <BaseInput
-                v-model="formData.email"
-                label="Email"
-                type="email"
-                :rules="[
-                  v => !!v || 'Обязательное поле',
-                  // v => /.+@.+\..+/.test(v) || 'Некорректный email'
-                ]"
-                prepend-icon="mdi-email"
-              />
+              Войти
+            </v-btn>
+          </v-col>
 
-              <BaseInput
-                v-model="formData.password"
-                label="Пароль"
-                type="password"
-                :rules="[v => !!v || 'Обязательное поле']"
-                prepend-icon="mdi-lock"
-              />
-            </BaseForm>
-          </v-card-text>
-
-          <v-card-text class="text-center">
-            <p class="text-body-2">
-              Нет аккаунта?
-              <router-link to="/register" class="text-decoration-none">
-                Зарегистрироваться
-              </router-link>
-            </p>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
+          <v-col cols="12" class="text-center">
+            <span class="account-hint text-body-2">Нет аккаунта?</span>
+            <router-link to="/register" class="text-decoration-none ml-2 register-link">
+              Зарегистрироваться
+            </router-link>
+          </v-col>
+        </v-row>
+      </v-form>
+    </v-card>
   </v-container>
 </template>
 
@@ -54,8 +73,6 @@
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
-import BaseForm from '../components/common/BaseForm.vue'
-import BaseInput from '../components/common/BaseInput.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -63,6 +80,7 @@ const authStore = useAuthStore()
 
 const form = ref()
 const loading = ref(false)
+const showPassword = ref(false)
 
 const formData = ref({
   email: '',
@@ -89,21 +107,137 @@ const handleSubmit = async () => {
 
 <style scoped>
 .login-card {
-  max-width: 480px;
+  max-width: 500px;
   width: 100%;
-  margin: 48px auto;
-  padding: 32px 24px 24px 24px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.1) !important;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  padding: 2rem;
+  background: #fff !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10), 0 1.5px 4px rgba(0,0,0,0.08);
+  border: 2px solid transparent;
 }
 
-@media (max-width: 600px) {
-  .login-card {
-    padding: 20px 8px 16px 8px;
-    margin: 24px auto;
-    max-width: 98vw;
-  }
+.login-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.login-header h1 {
+  color: #222;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.login-header p {
+  color: #6b7280;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.login-form {
+  margin-top: 0.5rem;
+}
+
+.login-button {
+  background: linear-gradient(90deg, #1976d2 0%, #42a5f5 100%);
+  color: #fff !important;
+  font-weight: 700;
+  font-size: 1.1rem;
+  height: 48px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+  transition: background 0.2s, box-shadow 0.2s;
+  text-transform: none;
+  letter-spacing: 0.5px;
+}
+
+.login-button:hover {
+  background: linear-gradient(90deg, #1565c0 0%, #1e88e5 100%);
+  box-shadow: 0 4px 16px rgba(25, 118, 210, 0.16);
+}
+
+.register-link {
+  color: #1976d2;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.register-link:hover {
+  color: #1565c0;
+}
+
+.account-hint {
+  color: #1976d2;
+  font-weight: 600;
+}
+
+:deep(.custom-field) {
+  background: #fff;
+}
+
+:deep(.custom-field:hover) {
+  background: #fff;
+}
+
+:deep(.v-field) {
+  border: 2px solid #1976d2 !important;
+  border-radius: 8px;
+  box-shadow: none !important;
+  background: #fff;
+}
+
+:deep(.v-field--focused) {
+  border-color: #1976d2;
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
+}
+
+:deep(.v-field__input) {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  color: #222 !important;
+  font-weight: 500;
+}
+
+:deep(.v-label) {
+  color: #6b7280 !important;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+:deep(.v-messages__message) {
+  color: #6b7280;
+}
+
+:deep(.v-icon) {
+  color: #6b7280;
+  opacity: 0.8;
+}
+
+:deep(.v-field--focused .v-icon) {
+  color: #1976d2;
+}
+
+:deep(.v-field--focused .v-label) {
+  color: #1976d2 !important;
+}
+
+:deep(.v-field--error) {
+  border: none !important;
+}
+
+:deep(.v-field__outline),
+:deep(.v-field__overlay) {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+:deep(.v-col) {
+  margin-bottom: 0.5rem !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+:deep(.v-container) {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
 }
 </style>

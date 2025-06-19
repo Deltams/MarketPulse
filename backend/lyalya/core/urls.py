@@ -19,7 +19,9 @@ urlpatterns = [
     path('products/<int:product_id>/', views.product_detail_view),
 
     path('api/v1/categories/', views.CategoryListCreateView.as_view()),
+    path('api/v1/categories/all/', views.CategoryAllListCreateView.as_view()),
     path('api/v1/categories/<int:pk>/', views.CategoryRetrieveUpdateDestroyView.as_view()),
+    path('api/v1/service-categories/', views.ServiceCategoryListCreateView.as_view()),
     
     path('api/v1/productlist/', views.ProductAPIView.as_view()),
     path('api/v1/productlist/<int:pk>/', views.ProductDetailAPIView.as_view()),

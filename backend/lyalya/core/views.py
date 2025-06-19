@@ -12,8 +12,11 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Brand, Category, Product, Service, Cart, CartItem, Address, Order, OrderItem
 from .serializers import (
     CategorySerializer, RegisterSerializer, ProductSerializer, BrandSerializer, UserSerializer,
-    ServiceSerializer, CartSerializer, CartItemSerializer, AddressSerializer, OrderSerializer, OrderItemSerializer
+    ServiceSerializer, CartSerializer, CartItemSerializer, AddressSerializer, OrderSerializer, OrderItemSerializer,
+    CustomTokenObtainPairSerializer
 )
+from .pagination import CustomPageNumberPagination
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 class RegisterView(APIView):
     def post(self, request):
@@ -83,6 +86,22 @@ def product_detail_view(request, product_id):
 
 
 class CategoryListCreateView(generics.ListCreateAPIView):
+    serializer_class = CategorySerializer
+
+    def get_queryset(self):
+        # Возвращаем только категории, в которых есть продукты
+        return Category.objects.filter(product__isnull=False).distinct()
+
+
+class ServiceCategoryListCreateView(generics.ListCreateAPIView):
+    serializer_class = CategorySerializer
+
+    def get_queryset(self):
+        # Возвращаем только категории, в которых есть услуги
+        return Category.objects.filter(services__isnull=False).distinct()
+
+
+class CategoryAllListCreateView(generics.ListCreateAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
@@ -95,9 +114,15 @@ class CategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 class ProductAPIView(generics.ListCreateAPIView):
     serializer_class = ProductSerializer
     parser_classes = (MultiPartParser, FormParser, JSONParser)
+    pagination_class = CustomPageNumberPagination
 
     def get_queryset(self):
         queryset = Product.objects.all()
+        
+        # Фильтрация по бренду
+        brand_id = self.request.query_params.get('brand')
+        if brand_id:
+            queryset = queryset.filter(brand_id=brand_id)
         
         # Фильтрация по категориям
         category_params = {k: v for k, v in self.request.query_params.items() if k.startswith('category_')}
@@ -125,7 +150,7 @@ class ProductAPIView(generics.ListCreateAPIView):
         if search:
             queryset = queryset.filter(name__icontains=search)
         
-        return queryset
+        return queryset.order_by('-created_at', 'id')
 
     def perform_create(self, serializer):
         serializer.save(seller=self.request.user.userprofile)
@@ -269,9 +294,15 @@ class OrderItemRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 class ServiceAPIView(generics.ListCreateAPIView):
     serializer_class = ServiceSerializer
     parser_classes = (MultiPartParser, FormParser, JSONParser)
+    pagination_class = CustomPageNumberPagination
 
     def get_queryset(self):
         queryset = Service.objects.all()
+        
+        # Фильтрация по бренду (теперь напрямую)
+        brand_id = self.request.query_params.get('brand')
+        if brand_id:
+            queryset = queryset.filter(brand_id=brand_id)
         
         # Фильтрация по категориям
         category_params = {k: v for k, v in self.request.query_params.items() if k.startswith('category_')}
@@ -299,7 +330,7 @@ class ServiceAPIView(generics.ListCreateAPIView):
         if search:
             queryset = queryset.filter(name__icontains=search)
         
-        return queryset
+        return queryset.order_by('-created_at', 'id')
 
     def perform_create(self, serializer):
         serializer.save(seller=self.request.user)
@@ -312,3 +343,7 @@ class ServiceDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 
     def perform_update(self, serializer):
         serializer.save(seller=self.request.user)
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer

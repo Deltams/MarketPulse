@@ -16,17 +16,55 @@ interface Product {
   updated_at: string
 }
 
+interface PaginationInfo {
+  count: number
+  next: string | null
+  previous: string | null
+  page_size: number
+  current_page: number
+  total_pages: number
+}
+
 export const useProductStore = defineStore('product', () => {
   const products = ref<Product[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const pagination = ref<PaginationInfo>({
+    count: 0,
+    next: null,
+    previous: null,
+    page_size: 10,
+    current_page: 1,
+    total_pages: 0
+  })
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (params?: Record<string, any>) => {
     loading.value = true
     error.value = null
     try {
-      const response = await api.get('/productlist/')
-      products.value = response.data
+      const queryParams = { ...params };
+      const response = await api.get('/productlist/', { params: queryParams })
+      if (response.data.results) {
+        products.value = response.data.results
+        pagination.value = {
+          count: response.data.count || 0,
+          next: response.data.next,
+          previous: response.data.previous,
+          page_size: response.data.page_size || 10,
+          current_page: response.data.current_page || 1,
+          total_pages: response.data.total_pages || Math.ceil((response.data.count || 0) / (response.data.page_size || 10))
+        }
+      } else {
+        products.value = response.data
+        pagination.value = {
+          count: Array.isArray(response.data) ? response.data.length : 0,
+          next: null,
+          previous: null,
+          page_size: Array.isArray(response.data) ? response.data.length : 0,
+          current_page: 1,
+          total_pages: 1
+        }
+      }
     } catch (e: any) {
       error.value = e.response?.data?.detail || 'Ошибка при загрузке товаров'
       console.error('Error fetching products:', e)
@@ -35,6 +73,80 @@ export const useProductStore = defineStore('product', () => {
       loading.value = false
     }
   }
+
+  const fetchNextPage = async () => {
+    if (!hasNextPage.value) return
+    loading.value = true
+    error.value = null
+    try {
+      const response = await api.get(pagination.value.next!)
+      products.value = [...products.value, ...response.data.results]
+      pagination.value = {
+        count: response.data.count || pagination.value.count,
+        next: response.data.next,
+        previous: response.data.previous,
+        page_size: response.data.page_size || pagination.value.page_size,
+        current_page: response.data.current_page || pagination.value.current_page + 1,
+        total_pages: response.data.total_pages || pagination.value.total_pages
+      }
+    } catch (e: any) {
+      error.value = e.response?.data?.detail || 'Ошибка при загрузке следующей страницы'
+      console.error('Error fetching next page:', e)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const fetchPreviousPage = async () => {
+    if (!hasPreviousPage.value) return
+    loading.value = true
+    error.value = null
+    try {
+      const response = await api.get(pagination.value.previous!)
+      products.value = response.data.results
+      pagination.value = {
+        count: response.data.count || pagination.value.count,
+        next: response.data.next,
+        previous: response.data.previous,
+        page_size: response.data.page_size || pagination.value.page_size,
+        current_page: response.data.current_page || pagination.value.current_page - 1,
+        total_pages: response.data.total_pages || pagination.value.total_pages
+      }
+    } catch (e: any) {
+      error.value = e.response?.data?.detail || 'Ошибка при загрузке предыдущей страницы'
+      console.error('Error fetching previous page:', e)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const fetchPage = async (page: number, params?: Record<string, any>) => {
+    loading.value = true
+    error.value = null
+    try {
+      const requestParams = { ...params, page };
+      const response = await api.get('/productlist/', { params: requestParams })
+      if (response.data.results) {
+        products.value = response.data.results
+        pagination.value = {
+          count: response.data.count || 0,
+          next: response.data.next,
+          previous: response.data.previous,
+          page_size: response.data.page_size || 10,
+          current_page: page,
+          total_pages: response.data.total_pages || Math.ceil((response.data.count || 0) / (response.data.page_size || 10))
+        }
+      }
+    } catch (e: any) {
+      error.value = e.response?.data?.detail || 'Ошибка при загрузке страницы'
+      console.error('Error fetching page:', e)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const hasNextPage = computed(() => pagination.value.next !== null)
+  const hasPreviousPage = computed(() => pagination.value.previous !== null)
 
   const getProductById = (id: number) => {
     return products.value.find(product => product.id === id)
@@ -101,7 +213,13 @@ export const useProductStore = defineStore('product', () => {
     products,
     loading,
     error,
+    pagination,
+    hasNextPage,
+    hasPreviousPage,
     fetchProducts,
+    fetchNextPage,
+    fetchPreviousPage,
+    fetchPage,
     getProductById,
     getProductsBySearch,
     addProduct,

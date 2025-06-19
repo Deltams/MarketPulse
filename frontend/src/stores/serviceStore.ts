@@ -14,10 +14,27 @@ interface Service {
   updated_at: string
 }
 
+interface PaginationInfo {
+  count: number
+  next: string | null
+  previous: string | null
+  page_size: number
+  current_page: number
+  total_pages: number
+}
+
 export const useServiceStore = defineStore('service', () => {
   const services = ref<Service[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const pagination = ref<PaginationInfo>({
+    count: 0,
+    next: null,
+    previous: null,
+    page_size: 10,
+    current_page: 1,
+    total_pages: 0
+  })
 
   // Getters
   const activeServices = computed(() => {
@@ -28,17 +45,121 @@ export const useServiceStore = defineStore('service', () => {
     return (id: number) => services.value.find(service => service.id === id)
   })
 
+  const hasNextPage = computed(() => pagination.value.next !== null)
+  const hasPreviousPage = computed(() => pagination.value.previous !== null)
+
   // Actions
   const fetchServices = async (params?: Record<string, any>) => {
     loading.value = true
     error.value = null
     
     try {
-      const response = await api.get('/servicelist/', { params })
-      services.value = response.data.results || response.data
+      const queryParams = { ...params };
+      const response = await api.get('/servicelist/', { params: queryParams })
+      
+      if (response.data.results) {
+        // Пагинированный ответ
+        services.value = response.data.results
+        pagination.value = {
+          count: response.data.count || 0,
+          next: response.data.next,
+          previous: response.data.previous,
+          page_size: response.data.page_size || 10,
+          current_page: response.data.current_page || 1,
+          total_pages: response.data.total_pages || Math.ceil((response.data.count || 0) / (response.data.page_size || 10))
+        }
+      } else {
+        // Непагинированный ответ
+        services.value = response.data
+        pagination.value = {
+          count: response.data.length || 0,
+          next: null,
+          previous: null,
+          page_size: response.data.length || 0,
+          current_page: 1,
+          total_pages: 1
+        }
+      }
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Ошибка при загрузке услуг'
       console.error('Error fetching services:', err)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const fetchNextPage = async () => {
+    if (!hasNextPage.value) return
+    
+    loading.value = true
+    error.value = null
+    
+    try {
+      const response = await api.get(pagination.value.next!)
+      services.value = [...services.value, ...response.data.results]
+      pagination.value = {
+        count: response.data.count || pagination.value.count,
+        next: response.data.next,
+        previous: response.data.previous,
+        page_size: response.data.page_size || pagination.value.page_size,
+        current_page: response.data.current_page || pagination.value.current_page + 1,
+        total_pages: response.data.total_pages || pagination.value.total_pages
+      }
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Ошибка при загрузке следующей страницы'
+      console.error('Error fetching next page:', err)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const fetchPreviousPage = async () => {
+    if (!hasPreviousPage.value) return
+    
+    loading.value = true
+    error.value = null
+    
+    try {
+      const response = await api.get(pagination.value.previous!)
+      services.value = response.data.results
+      pagination.value = {
+        count: response.data.count || pagination.value.count,
+        next: response.data.next,
+        previous: response.data.previous,
+        page_size: response.data.page_size || pagination.value.page_size,
+        current_page: response.data.current_page || pagination.value.current_page - 1,
+        total_pages: response.data.total_pages || pagination.value.total_pages
+      }
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Ошибка при загрузке предыдущей страницы'
+      console.error('Error fetching previous page:', err)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const fetchPage = async (page: number, params?: Record<string, any>) => {
+    loading.value = true
+    error.value = null
+    
+    try {
+      const requestParams = { ...params, page };
+      const response = await api.get('/servicelist/', { params: requestParams })
+      
+      if (response.data.results) {
+        services.value = response.data.results
+        pagination.value = {
+          count: response.data.count || 0,
+          next: response.data.next,
+          previous: response.data.previous,
+          page_size: response.data.page_size || 10,
+          current_page: page,
+          total_pages: response.data.total_pages || Math.ceil((response.data.count || 0) / (response.data.page_size || 10))
+        }
+      }
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Ошибка при загрузке страницы'
+      console.error('Error fetching page:', err)
     } finally {
       loading.value = false
     }
@@ -117,9 +238,15 @@ export const useServiceStore = defineStore('service', () => {
     services,
     loading,
     error,
+    pagination,
     activeServices,
     getServiceById,
+    hasNextPage,
+    hasPreviousPage,
     fetchServices,
+    fetchNextPage,
+    fetchPreviousPage,
+    fetchPage,
     fetchService,
     createService,
     updateService,

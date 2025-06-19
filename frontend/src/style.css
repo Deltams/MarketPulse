@@ -77,3 +77,11 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+.v-menu__content {
+  background: #fff !important;
+}
+.v-menu .v-list .v-list-item-title,
+.v-menu .v-list .v-list-item {
+  color: #1976d2 !important;
+  opacity: 1 !important;
+}
