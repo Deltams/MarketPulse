@@ -114,17 +114,12 @@ class CategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 class ProductAPIView(generics.ListCreateAPIView):
     serializer_class = ProductSerializer
     parser_classes = (MultiPartParser, FormParser, JSONParser)
-    pagination_class = CustomPageNumberPagination
 
     def get_queryset(self):
         queryset = Product.objects.all()
-        
-        # Фильтрация по бренду
         brand_id = self.request.query_params.get('brand')
         if brand_id:
             queryset = queryset.filter(brand_id=brand_id)
-        
-        # Фильтрация по категориям
         category_params = {k: v for k, v in self.request.query_params.items() if k.startswith('category_')}
         if category_params:
             from django.db.models import Q
@@ -136,24 +131,19 @@ class ProductAPIView(generics.ListCreateAPIView):
                 except (ValueError, TypeError):
                     continue
             queryset = queryset.filter(category_filters)
-        
-        # Фильтрация по цене
         min_price = self.request.query_params.get('min_price')
         max_price = self.request.query_params.get('max_price')
         if min_price:
             queryset = queryset.filter(price__gte=min_price)
         if max_price:
             queryset = queryset.filter(price__lte=max_price)
-        
-        # Поиск по названию
         search = self.request.query_params.get('search')
         if search:
             queryset = queryset.filter(name__icontains=search)
-        
         return queryset.order_by('-created_at', 'id')
 
     def perform_create(self, serializer):
-        serializer.save(seller=self.request.user.userprofile)
+        serializer.save(seller=self.request.user)
 
 
 class ProductDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
@@ -294,7 +284,7 @@ class OrderItemRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 class ServiceAPIView(generics.ListCreateAPIView):
     serializer_class = ServiceSerializer
     parser_classes = (MultiPartParser, FormParser, JSONParser)
-    pagination_class = CustomPageNumberPagination
+    # pagination_class = CustomPageNumberPagination
 
     def get_queryset(self):
         queryset = Service.objects.all()
