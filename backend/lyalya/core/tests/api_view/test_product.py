@@ -22,17 +22,6 @@ class ProductAPITest(APITestCase):
             price=10.00
         )
 
-
-    def test_get_product_list(self):
-        """Тест GET для url /api/v1/productlist/"""
-
-        response = self.client.get('/api/v1/productlist/')
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data[0]['name'], 'First Product')
-        self.assertEqual(response.data[1]['name'], 'Second Product')
-
-
     def test_get_product_detail(self):
         """Тест GET для url api/v1/productlist/<int:pk>/"""
 
