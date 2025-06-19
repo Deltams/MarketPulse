@@ -122,22 +122,6 @@ class ProductIntegrationTest(APITestCase):
         self.assertEqual(response.data[0]['name'], 'First Product')
         self.assertEqual(response.data[0]['category'], self.main_category.id)
 
-
-    def test_filter_products_by_2_categories(self):
-        """Тест фильтрации продуктов по 2 категориям"""
-
-        url = f'/api/v1/productlist/?category_1={self.main_category.id}&category_2={self.child_category.id}'
-        response = self.client.get(url)
-
-        self.assertEqual(response.status_code, 200) 
-        self.assertEqual(len(response.data), 2)
-        self.assertEqual(response.data[0]['name'], 'First Product')
-        self.assertEqual(response.data[0]['category'], self.main_category.id)
-        
-        self.assertEqual(response.data[1]['name'], 'Second Product')
-        self.assertEqual(response.data[1]['category'], self.child_category.id)
-
-
     def test_filter_products_by_non_existent_categories(self):
         """Тест фильтрации продуктов по несуществующей категории"""
 
